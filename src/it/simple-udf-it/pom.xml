@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>snowflake.plugin.it</groupId>
+  <artifactId>simple-udf-it</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <description>A simple UDF IT to verify snowflake maven plugin</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.snowflake</groupId>
+        <artifactId>snowflake-maven-plugin</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <configuration>
+          <auth>
+            <propertiesFile>profile.properties</propertiesFile>
+          </auth>
+          <stage>SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST</stage>
+          <functions>
+            <function>
+              <name>simpleUdfItMyStringConcat</name>
+              <handler>SimpleUdf.myStringConcat</handler>
+              <args>
+                <arg>
+                  <name>a</name>
+                  <type>string</type>
+                </arg>
+                <arg>
+                  <name>b</name>
+                  <type>string</type>
+                </arg>
+              </args>
+              <returns>
+                string
+              </returns>
+            </function>
+          </functions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>deploy</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
