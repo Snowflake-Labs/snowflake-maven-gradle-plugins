@@ -13,7 +13,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
-public class IntegrationTest {
+public class MavenPluginIT {
 
     private String runScriptPath = "./src/it/runtest.sh";
     private String propertiesFilePath = "./src/it/profile.properties";
@@ -108,9 +108,9 @@ public class IntegrationTest {
         runTestWithArgs(testName, false, "", "");
     }
 
-    private void checkStringFuncProc(String invoke, String functionName, String args, String expected)  throws SQLException {
+    private void checkStringFuncProc(String invocation, String functionName, String args, String expected)  throws SQLException {
         Statement statement = conn.createStatement();
-        ResultSet rs = statement.executeQuery(String.format("%s %s(%s)", invoke, functionName, args));
+        ResultSet rs = statement.executeQuery(String.format("%s %s(%s)", invocation, functionName, args));
         rs.next();
         assertEquals(expected, rs.getString(1));
     }
@@ -121,6 +121,5 @@ public class IntegrationTest {
 
     private void checkStringProcedure(String functionName, String args, String expected) throws SQLException {
         checkStringFuncProc("CALL", functionName, args, expected);
-
     }
 }

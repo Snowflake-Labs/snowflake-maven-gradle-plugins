@@ -44,7 +44,4 @@ public class MultipleUdfProc {
         public String brand = null;
         public int length = 0;
     }
-    public static void main(String[] args) {
-        System.out.println("Hello World");
-    }
 }

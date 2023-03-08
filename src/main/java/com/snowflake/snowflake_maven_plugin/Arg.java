@@ -18,8 +18,13 @@ public class Arg {
         return name == null || type == null;
     }
 
-    // Cannot make a new constructor or else Maven plugin will not be able to instantiate args object
-    // TODO: Make a new inner class with a constructor and use a map to read from maven CLI/POM
+    /**
+     * This factory method is used to parse UDF/procedure arguments supplied on the command line
+     * e.g. mvn snowflake-udx:deploy ... -Ddeploy.args="a string, b string" ...
+     * The input to this method will be "a string, b string"
+     * And it will output and object array [Arg(a, string), Arg(b, string)]
+     * We cannot make a new constructor or else Maven plugin will not be able to instantiate args object
+     */
     public static Arg[] fromString(String argsString) {
         if (argsString == null) {
             throw new IllegalArgumentException("The arguments of the function/procedure are missing. If there are no arguments, supply an empty string.");
