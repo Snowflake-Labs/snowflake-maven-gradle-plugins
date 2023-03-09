@@ -1,0 +1,9 @@
+.idea/
+target/
+*.class
+profile.properties
+.settings/
+.gradle/
+.vscode/
+.DS_Store
+snowflake-udx.iml
