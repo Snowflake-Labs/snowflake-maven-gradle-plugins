@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 # This script is used to run the snowflake-maven-plugin on integration test projects
 
 IT=$1
