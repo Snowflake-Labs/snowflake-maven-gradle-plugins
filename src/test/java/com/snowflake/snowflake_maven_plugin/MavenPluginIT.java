@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Scanner;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
 import org.junit.After;
 import org.junit.Before;
@@ -91,21 +92,33 @@ public class MavenPluginIT {
     }
   }
 
+  private static void inheritIO(final InputStream src, final PrintStream dest) {
+    new Thread(
+            new Runnable() {
+              public void run() {
+                Scanner sc = new Scanner(src);
+                while (sc.hasNextLine()) {
+                  dest.println(sc.nextLine());
+                }
+              }
+            })
+        .start();
+  }
+
   // We pass "-Ddeploy.args="a string, b string"" as an unsplit arg to the runtest.sh script
   // This is so that the spaces in "-Ddeploy.args=a string, b string" doesn't cause this section to
   // be parsed as another lifecycle goal
   private void runTestWithArgs(String testName, boolean withArgs, String args, String unsplitArg) {
+    // Start the process.
+    ProcessBuilder processBuilder =
+        new ProcessBuilder(
+            runScriptPath, testName, String.valueOf(withArgs), stageName, args, unsplitArg);
     try {
-      Process proc =
-          new ProcessBuilder(
-                  runScriptPath, testName, String.valueOf(withArgs), stageName, args, unsplitArg)
-              .start();
+      Process proc = processBuilder.start();
+      inheritIO(proc.getInputStream(), System.out);
+      inheritIO(proc.getErrorStream(), System.err);
+      // wait for termination.
       proc.waitFor();
-      InputStream stream = proc.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-      while (reader.ready()) {
-        System.out.println(reader.readLine());
-      }
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
     }
