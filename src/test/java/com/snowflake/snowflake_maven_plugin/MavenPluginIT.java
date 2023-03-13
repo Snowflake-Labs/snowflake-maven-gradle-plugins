@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.Random;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +18,9 @@ public class MavenPluginIT {
   private String runScriptPath = "./src/it/runtest.sh";
   private String propertiesFilePath = "./src/it/profile.properties";
   private SnowflakeConnectionV1 conn;
+  private String stageName =
+      "SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST_"
+          + Math.abs(new Random(System.nanoTime()).nextInt());
 
   @Before
   public void setup() throws SQLException, IOException {
@@ -27,7 +31,8 @@ public class MavenPluginIT {
 
   @After
   public void cleanupEach() throws SQLException {
-    conn.createStatement().execute("DROP STAGE IF EXISTS SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST");
+    System.out.println("DROP STAGE IF EXISTS " + stageName);
+    conn.createStatement().execute("DROP STAGE IF EXISTS " + stageName);
   }
 
   @Test
@@ -92,7 +97,8 @@ public class MavenPluginIT {
   private void runTestWithArgs(String testName, boolean withArgs, String args, String unsplitArg) {
     try {
       Process proc =
-          new ProcessBuilder(runScriptPath, testName, String.valueOf(withArgs), args, unsplitArg)
+          new ProcessBuilder(
+                  runScriptPath, testName, String.valueOf(withArgs), stageName, args, unsplitArg)
               .start();
       proc.waitFor();
       InputStream stream = proc.getInputStream();
