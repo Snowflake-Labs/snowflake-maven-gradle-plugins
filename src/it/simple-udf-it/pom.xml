@@ -15,6 +15,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <com.snowflake.snowflake-maven-plugin.version>fromScript</com.snowflake.snowflake-maven-plugin.version>
+    <com.snowflake.snowflake-maven-plugin.stage>fromScript</com.snowflake.snowflake-maven-plugin.stage>
   </properties>
 
   <build>
@@ -27,7 +28,7 @@
           <auth>
             <propertiesFile>../profile.properties</propertiesFile>
           </auth>
-          <stage>SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST</stage>
+          <stage>${com.snowflake.snowflake-maven-plugin.stage}</stage>
           <functions>
             <function>
               <name>simpleUdfItMyStringConcat</name>

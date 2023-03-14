@@ -144,8 +144,8 @@ public class Snowflake {
                     fileName,
                     stageName,
                     depsToStagePath)); // TODO: Store these variables as properties of the Snowflake
-                                       // class so that we avoid passing variables through several
-                                       // functions
+    // class so that we avoid passing variables through several
+    // functions
     log.info("Running create function statement: ");
     log.info(s);
     conn.createStatement().execute(s);

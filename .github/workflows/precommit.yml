@@ -1,4 +1,4 @@
-name: Unit Test
+name: precommit test
 on:
   push:
     branches: [ main ]
@@ -15,5 +15,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Decrypt profile.properties
+        run: .github/scripts/decrypt_profile.sh
+        env:
+          PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: mvn test
+        run: mvn install && mvn integration-test -P run-its
