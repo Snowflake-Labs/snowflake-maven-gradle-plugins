@@ -14,6 +14,7 @@ The plugin will:
 3. `PUT` build and dependency artifacts onto the stage, based on dependencies declared in the project's `POM.xml` or `build.gradle`. 
 4. Run the `CREATE FUNCTION` or `CREATE PROCEDURE`  DDL for each UDF/stored procedure with the necessary imports
 
+# Maven
 ## Setup
 Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing)
 
@@ -245,3 +246,5 @@ chmod -R +x src/it
 # Then, integration tests can be run the `run-its` maven profile:
 mvn verify -P run-its
 ```
+
+# Gradle
