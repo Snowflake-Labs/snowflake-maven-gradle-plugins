@@ -10,6 +10,7 @@ import net.snowflake.client.jdbc.SnowflakeConnectionV1;
  */
 public class Snowflake {
 
+  // Logger object passed from Maven/Gradle plugin
   private SnowflakeLogger sfLogger;
   private String artifactDirOnStage = "libs";
   private String dependencyDirOnStage = "dependency";

@@ -12,6 +12,7 @@ import net.snowflake.client.jdbc.SnowflakeConnectionV1;
 public class SnowflakeBuilder {
   public Map<String, String> options = new HashMap<>();
   public String url;
+  // Logger object passed from Maven/Gradle plugin
   private SnowflakeLogger sfLogger;
 
   public SnowflakeBuilder(SnowflakeLogger l) {
