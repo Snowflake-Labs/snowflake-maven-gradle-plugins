@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.snowflake</groupId>
+  <artifactId>maven</artifactId>
+  <versioning>
+    <latest>0.1.0-SNAPSHOT</latest>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+      <version>0.1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20230328174255</lastUpdated>
+  </versioning>
+</metadata>
