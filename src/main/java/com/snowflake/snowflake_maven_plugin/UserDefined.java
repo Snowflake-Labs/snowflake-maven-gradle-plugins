@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /** Base class for representing users' Function and Procedure definitions */
-public abstract class UserDefined {
+public abstract class UserDefined implements com.snowflake.core.UserDefined {
   public abstract String getType();
 
   public static final String procedure = "procedure";
@@ -14,6 +14,18 @@ public abstract class UserDefined {
   public String returns;
 
   public Arg[] args;
+
+  public String getName() {
+    return name;
+  }
+
+  public String getHandler() {
+    return handler;
+  }
+
+  public String getReturns() {
+    return returns;
+  }
 
   /**
    * This factory method is only used to create an instance from CLI arguments We don't define a

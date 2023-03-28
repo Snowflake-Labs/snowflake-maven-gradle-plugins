@@ -1,20 +1,17 @@
-package com.snowflake.snowflake_maven_plugin.core;
+package com.snowflake.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
 
-import org.apache.maven.plugin.logging.Log;
 import org.junit.Test;
-import org.mockito.Mock;
 
 public class SnowflakeBuilderTest {
-
-  @Mock private Log log;
+  private LoggerMock log = new LoggerMock();
 
   @Test
   public void testConfig() {
-    SnowflakeBuilder sb = new SnowflakeBuilder(log);
+    SnowflakeBuilder sb = new SnowflakeBuilder(log::info);
     // config should set options
     sb.config("name", "functionName");
     assertThat(sb.options, hasEntry("name", "functionName"));
