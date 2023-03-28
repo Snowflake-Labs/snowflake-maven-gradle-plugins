@@ -1,13 +1,14 @@
 package com.snowflake.snowflake_gradle_plugin;
 
+import com.snowflake.snowflake_gradle_plugin.extensions.FunctionContainer;
+import com.snowflake.snowflake_gradle_plugin.extensions.ProcedureContainer;
+import com.snowflake.snowflake_gradle_plugin.extensions.SnowflakeExtension;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskContainer;
 
-/**
- * Plugin class for Gradle Plugin
- * */
+/** Plugin class for Gradle Plugin */
 public class SnowflakePlugin implements Plugin<Project> {
   // Directory name for user project artifacts
   // This should match the user's configuration for project.libsDir
@@ -18,9 +19,22 @@ public class SnowflakePlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
+    // Register extensions for the plugin
+    ExtensionContainer extension = project.getExtensions();
+    extension.create("snowflake", SnowflakeExtension.class);
+    extension.add("functions", project.container(FunctionContainer.class));
+    extension.add("procedures", project.container(ProcedureContainer.class));
+
     // Register tasks for the plugin
     TaskContainer tasks = project.getTasks();
     tasks.register("listDependenciesTask", ListDependenciesTask.class);
     tasks.create("copyDependenciesTask", CopyDependenciesTask.class);
+    tasks
+        .create(
+            "snowflakePublish",
+            SnowflakePublishTask.class,
+            tasks.getByName("listDependenciesTask").getOutputs().getFiles().iterator().next())
+        .dependsOn("copyDependenciesTask")
+        .dependsOn("listDependenciesTask");
   }
 }
