@@ -1,8 +1,8 @@
 package com.snowflake.core;
 
 /**
- * Allow plugins to pass their information about users' procedures and functions to Snowflake object
- * Snowflake object runs CREATE FUNCTION/CREATE PROCEDURE DDL using this information
+ * Allow plugins to pass their information about users' procedures and functions to Snowflake class
+ * Snowflake class runs CREATE FUNCTION/CREATE PROCEDURE DDL using this information
  */
 public interface UserDefined {
   String procedure = "procedure";
