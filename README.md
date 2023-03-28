@@ -15,7 +15,7 @@ The plugin will:
 4. Run the `CREATE FUNCTION` or `CREATE PROCEDURE`  DDL for each UDF/stored procedure with the necessary imports
 
 # Maven
-## Setup
+## Setup Maven
 Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing)
 
 ## Prereqs
@@ -23,9 +23,10 @@ Install the plugins from Maven Central in the future (WIP). For now, follow the[
 |----------|----------------------|
 | JDK      | 11                   |
 | Maven    | 3                    |
+
 TODO: Test other compatible JDK and Maven versions. 
 
-## Usage
+## Usage Maven
 
 Put the following Maven coordinates in the `<plugins>` block of the  POM file.
 
@@ -200,7 +201,7 @@ As an example:
 mvn clean package snowflake-udx:deploy -Ddeploy.type="procedure" -Ddeploy.name="mvnStringConcat" -Ddeploy.args="a string, b string" -Ddeploy.handler="SimpleUdf.stringConcat" -Ddeploy.returns="string"
 ```
 
-## Contributing
+## Contributing Maven
 To build and install the plugin locally, clone and compile with [Apache Maven](https://maven.apache.org) and Java JDK 11+:
 
 ```shell
@@ -247,4 +248,25 @@ chmod -R +x src/it
 mvn verify -P run-its
 ```
 
+### IntelliJ
+
+If IntelliJ intellisense is highlighting errors within `snowflake_gradle_plugin` or `snowflake_maven_plugin`, you can fix it with the following:
+
+- Close the IDE
+- Open the project with IntelliJ File -> Open -> select `build.gradle` -> Open as project
+- In the 'Maven' tab of IntelliJ, click the refresh icon to "Reload all maven projects"
+
+This ensures that both Maven and Gradle are active on their respective compile sources, which will help resolve intellisense errors
+
 # Gradle
+## Setup Gradle
+Install the plugin from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing Gradle)
+
+## Prereqs
+| **Tool** | **Required Version** |
+|----------|----------------------|
+| JDK      | 11                   |
+
+
+## Usage Gradle
+## Contributing Gradle
