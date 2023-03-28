@@ -5,6 +5,7 @@ build/
 profile.properties
 .settings/
 .gradle/
+build/
 .vscode/
 .DS_Store
 snowflake-udx.iml
