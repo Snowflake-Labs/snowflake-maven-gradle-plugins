@@ -1,10 +1,8 @@
-package com.snowflake.snowflake_maven_plugin.core;
+package com.snowflake.core;
 
-import com.snowflake.snowflake_maven_plugin.UserDefined;
 import java.sql.SQLException;
 import java.util.*;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Class to execute create stage, upload file, create function/procedure commands on Snowflake
@@ -12,7 +10,8 @@ import org.apache.maven.plugin.logging.Log;
  */
 public class Snowflake {
 
-  private Log log;
+  // Logger object passed from Maven/Gradle plugin
+  private SnowflakeLogger sfLogger;
   private String artifactDirOnStage = "libs";
   private String dependencyDirOnStage = "dependency";
   private SnowflakeConnectionV1 conn;
@@ -23,35 +22,35 @@ public class Snowflake {
    * @param l
    * @param c
    */
-  Snowflake(Log l, SnowflakeConnectionV1 c) throws SQLException {
-    log = l;
+  public Snowflake(SnowflakeLogger l, SnowflakeConnectionV1 c) throws SQLException {
+    sfLogger = l;
     conn = c;
   }
 
   public void createStage(String stageName) throws SQLException {
-    log.info(String.format("Creating stage @%s if not exists", stageName));
+    sfLogger.info(String.format("Creating stage @%s if not exists", stageName));
     conn.createStatement().execute(String.format("create stage if not exists %s", stageName));
-    log.info("Stage located or created!");
+    sfLogger.info("Stage located or created!");
   }
 
   public void uploadArtifact(String localFileName, String stageName) throws SQLException {
-    log.info("Uploading artifact JAR: " + localFileName);
+    sfLogger.info("Uploading artifact JAR: " + localFileName);
     uploadFiles(localFileName, stageName, artifactDirOnStage, true);
-    log.info("Artifact JAR uploaded!");
+    sfLogger.info("Artifact JAR uploaded!");
   }
 
   public void uploadDependencies(
       String localFilePath, String stageName, Map<String, String> depsToStagePath)
       throws SQLException {
-    log.info("Uploading dependency JARs from: " + localFilePath);
+    sfLogger.info("Uploading dependency JARs from: " + localFilePath);
     for (Map.Entry<String, String> entry : depsToStagePath.entrySet()) {
       String dependencyFile = entry.getKey();
       String stagePath = entry.getValue();
-      log.info("Uploading " + dependencyFile);
+      sfLogger.info("Uploading " + dependencyFile);
       uploadFiles(
           String.format("%s/%s", localFilePath, dependencyFile), stageName, stagePath, false);
     }
-    log.info("Dependency JARs uploaded!");
+    sfLogger.info("Dependency JARs uploaded!");
   }
 
   public void uploadFiles(
@@ -133,21 +132,21 @@ public class Snowflake {
       UserDefined udx, String stageName, String fileName, Map<String, String> depsToStagePath)
       throws SQLException {
     String s =
-        String.format("CREATE OR REPLACE %s %s (%s)\n", udx.getType(), udx.name, udx.getInputs())
-            + String.format("RETURNS %s\n", udx.returns)
+        String.format(
+                "CREATE OR REPLACE %s %s (%s)\n", udx.getType(), udx.getName(), udx.getInputs())
+            + String.format("RETURNS %s\n", udx.getReturns())
             + "LANGUAGE java\n"
             + getPackageString(udx.getType())
-            + String.format("HANDLER = '%s'\n", udx.handler)
+            + String.format("HANDLER = '%s'\n", udx.getHandler())
             + String.format(
                 "IMPORTS = (%s);",
                 getImportString(
-                    fileName,
-                    stageName,
-                    depsToStagePath)); // TODO: Store these variables as properties of the Snowflake
+                    fileName, stageName, depsToStagePath)); // TODO: Store these variables as
+    // properties of the Snowflake
     // class so that we avoid passing variables through several
     // functions
-    log.info("Running create function statement: ");
-    log.info(s);
+    sfLogger.info("Running create function statement: ");
+    sfLogger.info(s);
     conn.createStatement().execute(s);
   }
 }

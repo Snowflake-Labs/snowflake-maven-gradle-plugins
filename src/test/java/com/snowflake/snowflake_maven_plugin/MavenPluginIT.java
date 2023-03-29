@@ -32,7 +32,6 @@ public class MavenPluginIT {
 
   @After
   public void cleanupEach() throws SQLException {
-    System.out.println("DROP STAGE IF EXISTS " + stageName);
     conn.createStatement().execute("DROP STAGE IF EXISTS " + stageName);
   }
 

@@ -2,8 +2,8 @@ package com.snowflake.snowflake_maven_plugin;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
-import com.snowflake.snowflake_maven_plugin.core.Snowflake;
-import com.snowflake.snowflake_maven_plugin.core.SnowflakeBuilder;
+import com.snowflake.core.Snowflake;
+import com.snowflake.core.SnowflakeBuilder;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -220,7 +220,7 @@ public class DeployGoal extends AbstractMojo {
   }
 
   private void createSnowflakeConnection() throws MojoExecutionException {
-    SnowflakeBuilder builder = new SnowflakeBuilder(getLog());
+    SnowflakeBuilder builder = new SnowflakeBuilder(getLog()::info);
     if (auth != null) {
       if (auth.containsKey(authFileParamName)) {
         // User has supplied an authentication file name

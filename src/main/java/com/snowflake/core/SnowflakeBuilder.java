@@ -1,4 +1,4 @@
-package com.snowflake.snowflake_maven_plugin.core;
+package com.snowflake.core;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
-import org.apache.maven.plugin.logging.Log;
 
 /** Builder class to configure Snowflake object from properties file and argument map */
 public class SnowflakeBuilder {
   public Map<String, String> options = new HashMap<>();
   public String url;
-  private Log log;
+  // Logger object passed from Maven/Gradle plugin
+  private SnowflakeLogger sfLogger;
 
-  public SnowflakeBuilder(Log l) {
-    log = l;
+  public SnowflakeBuilder(SnowflakeLogger l) {
+    sfLogger = l;
   }
 
   public SnowflakeBuilder config(String key, String val) {
@@ -49,10 +49,10 @@ public class SnowflakeBuilder {
 
   public Snowflake create() throws SQLException {
     Properties prop = jdbcConfig(options);
-    log.info("Creating connection to snowflake at url: " + url);
+    sfLogger.info("Creating connection to snowflake at url: " + url);
     SnowflakeConnectionV1 conn = new SnowflakeConnectionV1(url, prop);
-    log.info("Snowflake Session established!");
-    return new Snowflake(log, conn);
+    sfLogger.info("Snowflake Session established!");
+    return new Snowflake(sfLogger, conn);
   }
 
   // Format the user provided url to match JDBC Connection url
@@ -88,7 +88,8 @@ public class SnowflakeBuilder {
     config.put("CLIENT_SESSION_KEEP_ALIVE", true);
 
     // log JDBC memory limit
-    log.info(String.format("set JDBC client memory limit to %s", config.get(client_memory_limit)));
+    sfLogger.info(
+        String.format("set JDBC client memory limit to %s", config.get(client_memory_limit)));
     return config;
   }
 }
