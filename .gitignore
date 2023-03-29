@@ -1,5 +1,6 @@
 .idea/
 target/
+build/
 *.class
 profile.properties
 .settings/

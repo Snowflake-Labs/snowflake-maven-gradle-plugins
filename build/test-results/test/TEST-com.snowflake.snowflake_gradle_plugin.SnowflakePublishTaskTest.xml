@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.snowflake.snowflake_gradle_plugin.SnowflakePublishTaskTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-03-28T17:47:31" hostname="L74D5XV4TJ" time="0.144">
-  <properties/>
-  <testcase name="testMapDependenciesToStagePaths" classname="com.snowflake.snowflake_gradle_plugin.SnowflakePublishTaskTest" time="0.144"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
