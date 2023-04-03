@@ -97,9 +97,6 @@ public class DeployGoal extends AbstractMojo {
   @Parameter(property = "deploy.auth.url")
   private String auth_url;
 
-  @Parameter(property = "deploy.auth.account")
-  private String auth_account;
-
   @Parameter(property = "deploy.auth.user")
   private String auth_user;
 
@@ -238,7 +235,6 @@ public class DeployGoal extends AbstractMojo {
     // Read CLI auth config
     Map<String, String> authCliParams = new HashMap<>();
     authCliParams.put("url", auth_url);
-    authCliParams.put("account", auth_account);
     authCliParams.put("user", auth_user);
     authCliParams.put("password", auth_password);
     authCliParams.put("role", auth_role);
