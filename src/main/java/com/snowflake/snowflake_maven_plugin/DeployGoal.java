@@ -253,7 +253,9 @@ public class DeployGoal extends AbstractMojo {
     try {
       snowflake = builder.create();
     } catch (SQLException e) {
-      throw new MojoExecutionException("Error creating JDBC connection to snowflake: ", e);
+      throw new MojoExecutionException(
+          "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
+          e);
     }
   }
 
