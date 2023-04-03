@@ -47,7 +47,13 @@ public class SnowflakeBuilder {
     return this;
   }
 
+  // Creates the Snowflake connection object. Will throw exceptions for invalid connection data such
+  // as missing/incorrect url, user, password.
   public Snowflake create() throws SQLException {
+    if (url == null) {
+      throw new IllegalArgumentException(
+          "'url' field missing from auth properties. Add your Snowflake url to continue");
+    }
     Properties prop = jdbcConfig(options);
     sfLogger.info("Creating connection to snowflake at url: " + url);
     SnowflakeConnectionV1 conn = new SnowflakeConnectionV1(url, prop);

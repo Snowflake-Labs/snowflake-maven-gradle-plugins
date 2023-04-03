@@ -21,4 +21,27 @@ public abstract class UserDefinedContainer implements com.snowflake.core.UserDef
   public String getInputs() {
     return String.join(", ", args);
   }
+
+  // Throws an illegalArgumentException if the user defined function/procedure does not follow the
+  // expected format
+  public void throwIfNull() {
+    if (handler == null) {
+      throw new IllegalArgumentException(
+          String.format("handler not defined for %s %s", getType(), name));
+    } else if (returns == null) {
+      throw new IllegalArgumentException(
+          String.format("returns not defined for %s %s", getType(), name));
+    } else if (args == null) {
+      throw new IllegalArgumentException(
+          String.format("args not defined for %s %s", getType(), name));
+    }
+    for (String arg : args) {
+      if (arg.trim().split(" ").length != 2) {
+        throw new IllegalArgumentException(
+            String.format(
+                "%s %s: arguments must be formatted as \"<variableName> <variableType>\"",
+                getType(), name));
+      }
+    }
+  }
 }

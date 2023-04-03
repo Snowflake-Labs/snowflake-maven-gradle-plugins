@@ -2,14 +2,11 @@ package com.snowflake.snowflake_gradle_plugin;
 
 import com.snowflake.core.Snowflake;
 import com.snowflake.core.SnowflakeBuilder;
-import com.snowflake.snowflake_gradle_plugin.extensions.AuthConfig;
-import com.snowflake.snowflake_gradle_plugin.extensions.SnowflakeExtension;
-import com.snowflake.snowflake_gradle_plugin.extensions.UserDefinedContainer;
+import com.snowflake.snowflake_gradle_plugin.extensions.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -36,6 +33,7 @@ public class SnowflakePublishTask extends DefaultTask {
   private Snowflake snowflake;
   // Name of Snowflake stage for artifact uploads
   private String stage;
+  private Set<UserDefinedContainer> udxs = new HashSet<>();
 
   @TaskAction
   public void publish() throws IOException, SQLException {
@@ -45,6 +43,8 @@ public class SnowflakePublishTask extends DefaultTask {
     String artifactFileName =
         String.format("%s-%s.jar", getProject().getName(), getProject().getVersion());
     // TODO: Validate user configuration
+    udxs.addAll((Set<FunctionContainer>) getProject().getExtensions().getByName("functions"));
+    udxs.addAll((Set<ProcedureContainer>) getProject().getExtensions().getByName("procedures"));
     validateUserConfig();
     // TODO: Check for functions or procedure in CLI
     // Get authentication options from properties file, gradle.build, and CLI to create
@@ -57,18 +57,21 @@ public class SnowflakePublishTask extends DefaultTask {
         String.format(buildDirectory + SnowflakePlugin.dependenciesString),
         stage,
         dependenciesToStagePaths);
-    for (String type : new String[] {"functions", "procedures"}) {
-      for (UserDefinedContainer udx :
-          (Iterable<UserDefinedContainer>) getProject().getExtensions().getByName(type)) {
-        snowflake.createFunctionOrProc(udx, stage, artifactFileName, dependenciesToStagePaths);
-      }
+    for (UserDefinedContainer udx : udxs) {
+      snowflake.createFunctionOrProc(udx, stage, artifactFileName, dependenciesToStagePaths);
     }
     logger.info("Functions created!");
   }
 
   private void validateUserConfig() {
     if (stage == null) {
-      throw new IllegalArgumentException("A 'stage' name for file upload must be provided");
+      throw new IllegalArgumentException("'stage' name for file upload must be provided");
+    }
+    if (udxs.size() == 0) {
+      throw new IllegalArgumentException("At least one function or procedure must be specified");
+    }
+    for (UserDefinedContainer udx : udxs) {
+      udx.throwIfNull();
     }
   }
 
@@ -85,13 +88,25 @@ public class SnowflakePublishTask extends DefaultTask {
       if (auth.getPropertiesFile() != null) {
         // User has supplied an authentication file name
         logger.info("Reading auth config from file: " + auth.getPropertiesFile());
-        builder.configFile(auth.getPropertiesFile());
+        try {
+          builder.configFile(auth.getPropertiesFile());
+        } catch (IOException e) {
+          throw new RuntimeException(
+              "Error reading or accessing the specified properties file: ", e);
+        }
       }
       // Read build.gradle auth config
       builder.config(auth.getAuthMap());
     }
     // TODO: Read CLI auth config
-    snowflake = builder.create();
+    // Create snowflake JDBC Connection
+    try {
+      snowflake = builder.create();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+          "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
+          e);
+    }
   }
 
   /**
