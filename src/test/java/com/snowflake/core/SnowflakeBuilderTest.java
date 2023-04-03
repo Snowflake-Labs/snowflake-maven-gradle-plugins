@@ -19,8 +19,6 @@ public class SnowflakeBuilderTest {
     sb.config("NAME", "otherName");
     assertThat(sb.options, hasEntry("name", "otherName"));
     // config should set url and account with formatting
-    sb.config("account", "myaccount");
-    assertEquals(sb.url, "jdbc:snowflake://myaccount.snowflakecomputing.com:443");
     String[] urls =
         new String[] {
           "myaccount.snowflakecomputing.com",

@@ -53,9 +53,7 @@ Create a properties file `profile.properties` in the root of the project
 with information to establish a JDBC connection to your Snowflake account:
 ```properties
 # profile.properties
-# Supply either one of the URL or ACCOUNT properties
 URL=https://MY_ACCOUNT_NAME.snowflakecomputing.com:443
-ACCOUNT=MY_ACCOUNT_NAME
 USER=username
 PASSWORD=password
 # Optional properties:
@@ -168,9 +166,7 @@ Simply expose the following environment variables from the secrets provider:
     <version>0.1.0-SNAPSHOT</version>
     <configuration>
         <auth>
-            <!-- Supply either one of the URL or ACCOUNT properties -->
             <url>${env.MY_URL}</url>
-            <account>${env.MY_ACCOUNT}</account>
             <user>${env.MY_USER}</user>
             <password>${env.MY_PASSWORD}</password>
             <!-- optional auth configuration -->  
@@ -186,7 +182,7 @@ Simply expose the following environment variables from the secrets provider:
 Auth parameters can optionally be provided as arguments when running the plugin from the CLI.
 Values from CLI arguments will override any values set in the properties file or POM:
 ```
-mvn snowflake-udx:deploy -Ddeploy.auth.user=”username” -Ddeploy.auth.password=”password” -Ddeploy.auth.url=”myaccount.snowflakecomputing.com” -Ddeploy.auth.account=”myaccount” -Ddeploy.auth.role=”myrole” -Ddeploy.auth.db=”mydb” -Ddeploy.auth.schema=”myschema”
+mvn snowflake-udx:deploy -Ddeploy.auth.user=”username” -Ddeploy.auth.password=”password” -Ddeploy.auth.url=”myaccount.snowflakecomputing.com” -Ddeploy.auth.role=”myrole” -Ddeploy.auth.db=”mydb” -Ddeploy.auth.schema=”myschema”
 ```
 
 A single function or procedure can also be specified through command line arguments. 
