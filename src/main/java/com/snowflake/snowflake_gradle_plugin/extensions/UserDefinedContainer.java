@@ -23,7 +23,8 @@ public abstract class UserDefinedContainer implements com.snowflake.core.UserDef
   }
 
   // Throws an illegalArgumentException if the user defined function/procedure does not follow the
-  // expected format
+  // expected format. This is used instead of a constructor because Gradle Extension Container API
+  // expects to set instance methods using setter methods
   public void throwIfNull() {
     if (handler == null) {
       throw new IllegalArgumentException(
