@@ -1,5 +1,6 @@
 package com.snowflake.core;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.*;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
@@ -15,6 +16,10 @@ public class Snowflake {
   private String artifactDirOnStage = "libs";
   private String dependencyDirOnStage = "dependency";
   private SnowflakeConnectionV1 conn;
+  // A set of dependencies which did not resolve to JAR files and are therefore skipped on upload
+  // These are usually Gradle platform dependencies or Maven Bill-Of-Materials (BOM) which do not
+  // need to be uploaded
+  private Set<String> skippedDependencies = new HashSet<>();
 
   /**
    * Create a snowflake object representing a session with a logger
@@ -47,8 +52,19 @@ public class Snowflake {
       String dependencyFile = entry.getKey();
       String stagePath = entry.getValue();
       sfLogger.info("Uploading " + dependencyFile);
-      uploadFiles(
-          String.format("%s/%s", localFilePath, dependencyFile), stageName, stagePath, false);
+      String dependencyFilePath = String.format("%s/%s", localFilePath, dependencyFile);
+      if (new File(dependencyFilePath).isFile()) {
+        uploadFiles(dependencyFilePath, stageName, stagePath, false);
+      } else {
+        // If a jar file for the dependency is not found, skip it
+        // These are usually Gradle platform dependencies or Maven Bill-Of-Materials (BOM) which do
+        // not need to be uploaded
+        skippedDependencies.add(dependencyFile);
+        sfLogger.info(
+            String.format(
+                "Dependency jar not found at %s. This is not a problem if the dependency was a platform/bill-of-materials dependency",
+                dependencyFilePath));
+      }
     }
     sfLogger.info("Dependency JARs uploaded!");
   }
@@ -112,7 +128,9 @@ public class Snowflake {
     for (Map.Entry<String, String> entry : depsToStagePath.entrySet()) {
       String dependencyFile = entry.getKey();
       String stagePath = entry.getValue();
-      imports.add(stagePath + "/" + dependencyFile);
+      if (!skippedDependencies.contains(dependencyFile)) {
+        imports.add(stagePath + "/" + dependencyFile);
+      }
     }
     List<String> importPaths = new ArrayList<>();
     for (String s : imports) {
