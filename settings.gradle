@@ -3,3 +3,4 @@
  */
 
 rootProject.name = 'snowflake-gradle-plugin'
+include 'snowflake-gradle-plugin-module', 'snowflake-plugins-core'
