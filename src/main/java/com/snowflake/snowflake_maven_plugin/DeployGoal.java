@@ -221,8 +221,8 @@ public class DeployGoal extends AbstractMojo {
     if (auth != null) {
       if (auth.containsKey(authFileParamName)) {
         // User has supplied an authentication file name
+        getLog().info("Reading auth config from file: " + auth.get(authFileParamName));
         try {
-          getLog().info("Reading auth config from file: " + auth.get(authFileParamName));
           builder.configFile(auth.get(authFileParamName));
         } catch (IOException e) {
           throw new MojoExecutionException(
@@ -240,11 +240,7 @@ public class DeployGoal extends AbstractMojo {
     authCliParams.put("role", auth_role);
     authCliParams.put("db", auth_db);
     authCliParams.put("schema", auth_schema);
-    for (Map.Entry<String, String> param : authCliParams.entrySet()) {
-      if (param.getValue() != null) {
-        builder.config(param.getKey(), param.getValue());
-      }
-    }
+    builder.config(authCliParams);
     // Create snowflake JDBC Connection
     try {
       snowflake = builder.create();

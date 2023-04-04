@@ -8,9 +8,7 @@ public class FunctionContainer extends UserDefinedContainer {
   public FunctionContainer(String name) {
     super(name);
   }
-
-  @Override
-  public String getType() {
-    return UserDefinedContainer.function;
+  public FunctionConcrete concrete() {
+    return new FunctionConcrete(getName(), getArgs(), getHandler(), getReturns());
   }
 }

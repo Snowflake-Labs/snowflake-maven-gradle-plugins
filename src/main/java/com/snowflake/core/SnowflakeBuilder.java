@@ -20,18 +20,22 @@ public class SnowflakeBuilder {
   }
 
   public SnowflakeBuilder config(String key, String val) {
-    key = key.toLowerCase();
-    if (key.equals("url")) {
-      url = formatUrl(val);
-    } else {
-      options.put(key, val);
+    if (val != null) {
+      key = key.toLowerCase();
+      if (key.equals("account")) {
+        url = formatUrl(String.format("%s.snowflakecomputing.com", val));
+      } else if (key.equals("url")) {
+        url = formatUrl(val);
+      } else {
+        options.put(key, val);
+      }
     }
     return this;
   }
 
   public SnowflakeBuilder config(Map<String, String> options) {
     for (Map.Entry<String, String> entry : options.entrySet()) {
-      config(entry.getKey(), entry.getValue());
+        config(entry.getKey(), entry.getValue());
     }
     return this;
   }

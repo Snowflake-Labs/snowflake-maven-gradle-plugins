@@ -9,9 +9,7 @@ public class ProcedureContainer extends UserDefinedContainer {
   public ProcedureContainer(String name) {
     super(name);
   }
-
-  @Override
-  public String getType() {
-    return UserDefinedContainer.procedure;
+  public ProcedureConcrete concrete() {
+    return new ProcedureConcrete(getName(), getArgs(), getHandler(), getReturns());
   }
 }
