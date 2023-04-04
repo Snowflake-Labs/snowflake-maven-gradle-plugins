@@ -5,7 +5,6 @@ plugins {
 }
 
 group = 'com.snowflake'
-version '0.1.0-SNAPSHOT'
 description = 'Snowflake Gradle Plugin'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -26,7 +25,7 @@ dependencies {
     api 'net.snowflake:snowflake-jdbc:3.13.27'
     api 'org.twdata.maven:mojo-executor:2.4.0'
     api 'commons-io:commons-io:2.11.0'
-    implementation project(path: ':snowflake-plugins-core')
+    implementation project(':snowflake-plugins-core')
     testImplementation 'junit:junit:4.12'
 }
 
