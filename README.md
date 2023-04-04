@@ -260,7 +260,7 @@ This ensures that both Maven and Gradle are active on their respective compile s
 
 # Gradle
 ## Setup Gradle
-Install the plugin from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing Gradle)
+Install the plugin from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-gradle)
 
 ## Prereqs
 | **Tool** | **Required Version** |
@@ -269,4 +269,46 @@ Install the plugin from Maven Central in the future (WIP). For now, follow the[ 
 
 
 ## Usage Gradle
+Add the plugin to your project's `build.gradle`
+```groovy
+plugins {
+    id 'com.snowflake.snowflake-gradle-plugin' version '0.1.0-SNAPSHOT'
+}
+```
+
+Specify the repository from which you will download the plugin by specify the following at the top of `settings.gradle` 
+To use Maven Central:
+```groovy
+pluginManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+```
+
+Then:
+```shell
+gradle clean assemble snowflakePublish
+```
+
 ## Contributing Gradle
+```shell
+git clone https://github.com/Snowflake-Labs/snowflake-maven-gradle-plugin.git
+cd snowflake-maven-gradle-plugin/
+
+# Install a SNAPSHOT plugin version into the local .m2 repository
+gradle publishToMavenLocal
+```
+
+The plugin SNAPSHOT in the local Maven repository should now be accessible from other local Gradle projects.
+You can install the plugin in other projects POM as described in [Usage](#usage-gradle) with one difference:
+
+In local Gradle projects where you want to use the snowflake plugin, specify the following at the top of `settings.gradle` instead of using Maven central:
+```groovy
+pluginManagement {
+    repositories {
+        mavenLocal()
+    }
+}
+```
+

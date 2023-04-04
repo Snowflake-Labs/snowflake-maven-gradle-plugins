@@ -1,8 +1,7 @@
 package com.snowflake.snowflake_gradle_plugin;
 
-import org.gradle.api.tasks.diagnostics.DependencyReportTask;
-
 import java.io.File;
+import org.gradle.api.tasks.diagnostics.DependencyReportTask;
 
 /**
  * Task class that extends the Gradle DependencyReportTask task to report implementation
