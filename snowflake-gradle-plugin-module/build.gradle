@@ -1,0 +1,15 @@
+plugins {
+    id 'java-gradle-plugin'
+    id("io.freefair.lombok") version "8.0.1"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'net.snowflake:snowflake-jdbc:3.13.27'
+    api 'commons-io:commons-io:2.11.0'
+    implementation project(':snowflake-plugins-core')
+    testImplementation 'junit:junit:4.12'
+}

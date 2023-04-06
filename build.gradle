@@ -1,3 +1,50 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+}
+
 allprojects {
+    group = 'com.snowflake'
     version = "0.1.0-SNAPSHOT"
+}
+
+repositories {
+    mavenCentral()
+}
+
+gradlePlugin {
+    plugins {
+        snowflakeGradlePlugin {
+            id = 'com.snowflake.snowflake-gradle-plugin'
+            implementationClass = 'com.snowflake.plugins.udf.gradle.SnowflakePlugin'
+        }
+    }
+}
+
+subprojects.each { subproject ->
+    evaluationDependsOn(subproject.path)
+}
+task multiprojectJar(type: Jar, dependsOn: subprojects.assemble) {
+    subprojects.each { subproject ->
+        from subproject.configurations.archives.artifacts.files.collect { file ->
+            zipTree(file)
+        }
+    }
+}
+artifacts {
+    archives multiprojectJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.snowflake'
+            artifact multiprojectJar
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }

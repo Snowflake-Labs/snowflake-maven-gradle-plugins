@@ -1,9 +1,8 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
 }
 
-group = 'com.snowflake'
+
 description = 'Snowflake Plugins Core'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -17,15 +16,4 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:5.1.1'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-}
-
-publishing {
-    publications {
-        myLib(MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
 }
