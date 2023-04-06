@@ -31,8 +31,8 @@ public class SnowflakePlugin implements Plugin<Project> {
     tasks.create("copyDependenciesTask", CopyDependenciesTask.class);
     tasks
         .create(
-            "snowflakePublish",
-            SnowflakePublishTask.class,
+            "snowflakeDeploy",
+            SnowflakeDeployTask.class,
             tasks.getByName("listDependenciesTask").getOutputs().getFiles().iterator().next())
         .dependsOn("copyDependenciesTask")
         .dependsOn("listDependenciesTask");

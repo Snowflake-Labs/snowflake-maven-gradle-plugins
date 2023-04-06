@@ -7,4 +7,4 @@ profile.properties
 build/
 .vscode/
 .DS_Store
-snowflake-udx.iml
+*.iml

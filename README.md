@@ -1,14 +1,15 @@
 # Snowflake Maven/Gradle plugin
 
+[//]: # (Maven Central links: )
+## Usage:
+### [Jump to Maven usage](#usage-maven)
+### [Jump to Gradle usage](#usage-gradle)
+
 ## Overview
-This project is a maven plugin which will help developers publish [User-Defined Functions](https://docs.snowflake.com/en/sql-reference/udf-overview) (UDF) and [Stored Procedures](https://docs.snowflake.com/en/sql-reference/stored-procedures-overview) for Snowflake.
+This project is a maven and gradle plugin which will help developers publish [User-Defined Functions](https://docs.snowflake.com/en/sql-reference/udf-overview) (UDF) and [Stored Procedures](https://docs.snowflake.com/en/sql-reference/stored-procedures-overview) for Snowflake.
 The plugin can create a stage on Snowflake, copy artifact and dependency `.jar` files to the stage, and run the command to create the User-Defined Function or Stored procedure.
 
-The corresponding Gradle plugin is under development. 
-
-[//]: # (Maven Central link: )
-
-The plugin will:
+The plugins will:
 1. Accept user configuration for a Snowflake connection and one or more UDFs or stored procedures
 2. Create a stage if the stage doesn't exist
 3. `PUT` build and dependency artifacts onto the stage, based on dependencies declared in the project's `POM.xml` or `build.gradle`. 
@@ -16,15 +17,13 @@ The plugin will:
 
 # Maven
 ## Setup Maven
-Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing)
+Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-maven)
 
-## Prereqs
+## Prereqs Maven
 | **Tool** | **Required Version** |
 |----------|----------------------|
 | JDK      | 11                   |
 | Maven    | 3                    |
-
-TODO: Test other compatible JDK and Maven versions. 
 
 ## Usage Maven
 
@@ -47,7 +46,7 @@ mvn clean package snowflake:deploy
 
 `mvn snowflake:deploy` executes the plugin goal 
 
-### Configuring for local development
+### Configuring for local usage
 
 Create a properties file `profile.properties` in the root of the project 
 with information to establish a JDBC connection to your Snowflake account:
@@ -79,7 +78,6 @@ Provide configuration for auth and stage to the plugin:
     </configuration>
 </plugin>
 ```
-
 
 - `<propertiesFile>` should point to the auth properties file created above
 - `<stage>` is the name of the internal stage that will be created (if it doesn't exist) and where files will be uploaded. Note: Choose a new stage name or an existing stage where artifact and dependency `.Jar` files can be uploaded.
@@ -148,13 +146,6 @@ Example plugin configuration on POM:
 </plugin>
 ```
 
-#### Dependency reuse
-When uploading to stage, the plugin will structure dependency artifacts like a local `.m2` cache,
-with directories following an artifact's organization name and version.
-
-By default, build artifacts will overwrite upon each publish
-but existing dependencies files will not be uploaded again unless the version changes.
-
 ### Configuring for CI Pipelines
 
 Auth can be read directly from the environment of your CI pipeline, instead of from a properties file.
@@ -218,6 +209,8 @@ mvn install
 The plugin SNAPSHOT in the local .m2 repository should now be accessible from other Maven projects.
 You can install the plugin in other projects POM as described in [Usage](#usage).
 
+See [IntelliJ](#intellij) for IDE usage tips with this project.
+
 ### Testing
 
 Unit tests can be run with: 
@@ -248,16 +241,6 @@ chmod -R +x src/it
 mvn verify -P run-its
 ```
 
-### IntelliJ
-
-If IntelliJ intellisense is highlighting errors within `snowflake_gradle_plugin` or `snowflake_maven_plugin`, you can fix it with the following:
-
-- Close the IDE
-- Open the project with IntelliJ File -> Open -> select `build.gradle` -> Open as project
-- In the 'Maven' tab of IntelliJ, click the refresh icon to "Reload all maven projects"
-
-This ensures that both Maven and Gradle are active on their respective compile sources, which will help resolve intellisense errors
-
 # Gradle
 ## Setup Gradle
 Install the plugin from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-gradle)
@@ -286,10 +269,105 @@ pluginManagement {
 }
 ```
 
-Then:
+After configuration, run the following to publish your functions and procedures:
 ```shell
 gradle clean assemble snowflakePublish
 ```
+
+### Configuring for local usage
+Create a properties file `profile.properties` in the root of the project
+with information to establish a JDBC connection to your Snowflake account:
+```properties
+# profile.properties
+URL=https://MY_ACCOUNT_NAME.snowflakecomputing.com:443
+USER=username
+PASSWORD=password
+# Optional properties:
+ROLE=ACCOUNTADMIN
+WAREHOUSE=DEMO_WH
+DB=MY_DB
+SCHEMA=MY_SCHEMA
+```
+
+In your `buid.gradle`, provide configuration for auth and stage to the plugin:
+```groovy
+snowflake {
+ auth {
+  propertiesFile = "profile.properties"
+ }
+ stage = "STAGE_NAME"
+}
+```
+
+- `propertiesFile` should point to the auth properties file created above
+- `stage` is the name of the internal stage that will be created (if it doesn't exist) and where files will be uploaded. Note: Choose a new stage name or an existing stage where artifact and dependency `.Jar` files can be uploaded.
+
+#### Configuring UDFs and Stored Procedures
+
+Specify UDFs and Stored Procedures that should be published to Snowflake
+by creating a new `function` closure in the `functions` block or `procedure` closure under `procedures` for each.
+
+The arguments follow the [`CREATE FUNCTION`](https://docs.snowflake.com/en/sql-reference/sql/create-function#syntax)
+and [`CREATE PROCEDURE`](https://docs.snowflake.com/en/sql-reference/sql/create-procedure) syntax:
+
+- `functionName` or `procedureName` is the name to be used on Snowflake
+- `handler` is `packageName.className.methodName` for the handler method
+- `args` is a list of argument strings for the function which are formatted as "[ <arg_name> <arg_data_type> ] [ , ... ]"
+- `returns` is the return type
+
+Example plugin configuration on POM:
+
+```groovy
+plugins {
+ id 'com.snowflake.snowflake-gradle-plugin'
+}
+
+
+snowflake {
+ auth {
+  propertiesFile = './path/to/file'
+ }
+ stage = 'STAGE_NAME'
+ functions {
+  functionName {
+   args = ["a string", "b int"]
+   returns = "string"
+   handler = "PackageName.ClassName.methodName"
+  }
+  // More functions here
+ }
+ procedures {
+  procedureName {
+   args = ["a string, b string"]
+   returns = "string"
+   handler = "PackageName.ClassName.methodName"
+  }
+  // More procedures here
+ }
+}
+
+```
+
+### Configuring for CI Pipelines
+
+Auth can be read directly from the environment of your CI pipeline, instead of from a properties file.
+
+Simply expose the following environment variables from the secrets provider:
+
+```groovy
+snowflake {
+ auth {
+  url = System.getenv('SNOWFLAKEURL')
+  user = System.getenv('SNOWFLAKEUSER')
+  password = System.getenv('SNOWFLAKEPW')
+  // Optional:
+  role = System.getenv('SNOWFLAKEROLE')
+  db = System.getenv('SNOWFLAKEDB')
+  schema = System.getenv('SNOWFLAKESCHEMA')
+ }
+}
+```
+
 
 ## Contributing Gradle
 ```shell
@@ -312,3 +390,31 @@ pluginManagement {
 }
 ```
 
+See [IntelliJ](#intellij) for IDE usage tips with this project.
+
+
+### IntelliJ
+
+To contribute to the gradle plugin:
+IntelliJ `File` -> `Open` -> select `build.gradle` file -> Open as project
+
+To contribute to the maven plugin:
+IntelliJ `File` -> `Open` -> select `pom.xml` file -> Open as project
+
+To switch between the two plugins, delete the `.idea` IntelliJ cache folder and open the other plugin 
+
+If IntelliJ intellisense is highlighting errors within `snowflake_gradle_plugin` or `snowflake_maven_plugin`, you can fix it with the following:
+
+- Close the IDE
+- Open the project with IntelliJ `File` -> `Open` -> select `build.gradle` file -> Open as project
+- In the 'Maven' tab of IntelliJ, click the refresh icon to "Reload all maven projects"
+
+This ensures that both Maven and Gradle are active on their respective compile sources, which will help resolve intellisense errors
+
+
+#### Dependency reuse
+When uploading to stage, the plugin will structure dependency artifacts like a local `.m2` cache,
+with directories following an artifact's organization name and version.
+
+By default, build artifacts will overwrite upon each publish
+but existing dependencies files will not be uploaded again unless the version changes.
