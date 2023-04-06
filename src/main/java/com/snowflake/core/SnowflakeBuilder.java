@@ -21,9 +21,7 @@ public class SnowflakeBuilder {
 
   public SnowflakeBuilder config(String key, String val) {
     key = key.toLowerCase();
-    if (key.equals("account")) {
-      url = formatUrl(String.format("%s.snowflakecomputing.com", val));
-    } else if (key.equals("url")) {
+    if (key.equals("url")) {
       url = formatUrl(val);
     } else {
       options.put(key, val);
