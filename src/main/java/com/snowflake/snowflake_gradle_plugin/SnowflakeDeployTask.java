@@ -33,7 +33,9 @@ public class SnowflakeDeployTask extends DefaultTask {
   private SnowflakeExtension extension =
       (SnowflakeExtension) getProject().getExtensions().getByName(PLUGIN);
   private Logger logger = Logging.getLogger(SnowflakeDeployTask.class);
+  // Snowflake connection authentication information for the task
   private AuthConfig auth;
+  // Name of Snowflake stage for artifact uploads
   private String stage;
   @Optional
   @Input
@@ -107,7 +109,7 @@ public class SnowflakeDeployTask extends DefaultTask {
   private File dependencyLogFile;
   // Snowflake core instance configured for the user
   private Snowflake snowflake;
-  // Name of Snowflake stage for artifact uploads
+  // Set of Function/Procedure containers inputted by the user from their build file
   private Set<UserDefinedContainer> udxContainers = new HashSet<>();
 
   @TaskAction
@@ -120,12 +122,13 @@ public class SnowflakeDeployTask extends DefaultTask {
         String.format("%s-%s.jar", getProject().getName(), getProject().getVersion());
     udxContainers.addAll((Set<FunctionContainer>) getProject().getExtensions().getByName("functions"));
     udxContainers.addAll((Set<ProcedureContainer>) getProject().getExtensions().getByName("procedures"));
-    validateUserConfig();
+    // Validate user configuration of functions and procedures by converting the Gradle API containers into concrete Java objects
     Set<UserDefinedConcrete> concreteUdxs = new HashSet<>();
     for (UserDefinedContainer container : udxContainers) {
       concreteUdxs.add(container.concrete());
     }
     appendCliUdxIfDefined(concreteUdxs);
+    validateUserConfig(concreteUdxs);
     // Get authentication options from properties file, gradle.build, and CLI to create
     // Snowflake connection
     createSnowflakeConnection();
@@ -142,11 +145,11 @@ public class SnowflakeDeployTask extends DefaultTask {
     logger.info("Functions created!");
   }
 
-  private void validateUserConfig() {
+  private void validateUserConfig(Set<UserDefinedConcrete> udxs) {
     if (stage == null) {
       throw new IllegalArgumentException("'stage' name for file upload must be provided");
     }
-    if (udxContainers.size() == 0) {
+    if (udxs.size() == 0) {
       throw new IllegalArgumentException("At least one function or procedure must be specified");
     }
   }
@@ -264,10 +267,10 @@ public class SnowflakeDeployTask extends DefaultTask {
     return result;
   }
 
-  // Create a Function/Procedure object and append it to the UDFs list if ANY of the CLI arguments
-  // for a function/procedure are provided
-  // May produce a Function/Procedure with null properties so that the user config validation can
-  // prompt the user for missing fields
+  /** Try to create a concrete Function/Procedure object  if ANY of the CLI arguments
+  * for a function/procedure are provided. Throws an error if the arguments are incomplete or malformed.
+  * If new Function/Procedure object is created, append it to the UDFs list
+  */
   private void appendCliUdxIfDefined(Set<UserDefinedConcrete> udxs) {
     UserDefinedConcrete udx;
     Set<String> udxCliParams = new HashSet<>();

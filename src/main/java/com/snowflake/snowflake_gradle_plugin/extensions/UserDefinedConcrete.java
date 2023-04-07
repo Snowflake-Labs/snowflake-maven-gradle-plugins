@@ -1,10 +1,13 @@
 package com.snowflake.snowflake_gradle_plugin.extensions;
 
+/**
+ * Base class for concrete functions/procedures data class. Performs input validation from user configuration
+ */
 public abstract class UserDefinedConcrete implements com.snowflake.core.UserDefined {
+    // Constructor used to parse function/argument supplied on the CLI
     public UserDefinedConcrete(String name, String args, String handler, String returns) {
         this(name, parseStringArgs(args), handler, returns);
     }
-
     public UserDefinedConcrete(String name, String[] args, String handler, String returns) {
         if (name == null) {
             throw new IllegalArgumentException(
@@ -33,6 +36,7 @@ public abstract class UserDefinedConcrete implements com.snowflake.core.UserDefi
         this.returns = returns;
     }
 
+    // Parse function/procedure arguments string from the CLI into the expected Array format
     private static String[] parseStringArgs(String argsString) {
         if (argsString == null) {
             throw new IllegalArgumentException(

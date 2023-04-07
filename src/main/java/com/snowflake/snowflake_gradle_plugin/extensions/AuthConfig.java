@@ -20,6 +20,7 @@ public class AuthConfig {
   private String db;
   private String schema;
 
+  // Return a map with all object properties
   public Map<String, String> getAuthMap() {
     Map<String, String> result = new HashMap<>();
     result.put("url", url);

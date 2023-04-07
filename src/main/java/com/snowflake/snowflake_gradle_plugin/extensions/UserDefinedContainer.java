@@ -3,7 +3,7 @@ package com.snowflake.snowflake_gradle_plugin.extensions;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Base class for representing users' Function and Procedure definitions */
+/** Base class users to configure Function and Procedure definitions */
 @Setter
 @Getter
 public abstract class UserDefinedContainer {
