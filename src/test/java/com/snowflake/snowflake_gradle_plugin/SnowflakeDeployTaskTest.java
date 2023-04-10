@@ -1,6 +1,6 @@
 package com.snowflake.snowflake_gradle_plugin;
 
-import static com.snowflake.snowflake_gradle_plugin.SnowflakePublishTask.mapDependenciesToStagePathsHelper;
+import static com.snowflake.snowflake_gradle_plugin.SnowflakeDeployTask.mapDependenciesToStagePathsHelper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -12,7 +12,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.junit.Test;
 
-public class SnowflakePublishTaskTest {
+public class SnowflakeDeployTaskTest {
   private String dependencyLogPath = "src/test/resources/gradle-dependency-log/";
 
   @Test

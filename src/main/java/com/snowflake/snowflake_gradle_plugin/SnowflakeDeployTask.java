@@ -16,16 +16,16 @@ import org.gradle.api.tasks.TaskAction;
 import org.slf4j.Logger;
 
 /** Plugin publish task entry point. Executes all actions associated with snowflakePublish */
-public class SnowflakePublishTask extends DefaultTask {
+public class SnowflakeDeployTask extends DefaultTask {
   @Inject
-  public SnowflakePublishTask(File dependencyLogFile) {
+  public SnowflakeDeployTask(File dependencyLogFile) {
     this.dependencyLogFile = dependencyLogFile;
   }
 
   private String PLUGIN = "snowflake";
   private SnowflakeExtension extension =
       (SnowflakeExtension) getProject().getExtensions().getByName(PLUGIN);
-  private Logger logger = Logging.getLogger(SnowflakePublishTask.class);
+  private Logger logger = Logging.getLogger(SnowflakeDeployTask.class);
   // Temporary file which lists each dependency in the user project and their organization or
   // artifact ID. Populated by ListDependenciesTask
   private File dependencyLogFile;
