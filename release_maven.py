@@ -4,7 +4,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 
-maven_module_path = "snowflake-maven-plugin-module"
+maven_module_path = "snowflake-maven-plugin"
 core_path = "snowflake-plugins-core"
 maven_release_path = "release/snowflake-maven-plugin"
 java_src_path = "src/main/java"
@@ -14,6 +14,7 @@ pom_file_name = "pom.xml"
 # Copy source code from core and plugin modules
 copy_tree(path.join(maven_module_path, java_src_path), path.join(maven_release_path, java_src_path))
 copy_tree(path.join(core_path, java_src_path), path.join(maven_release_path, java_src_path))
+copy_tree
 
 # Parse pom xml
 ET.register_namespace('', "http://maven.apache.org/POM/4.0.0")
