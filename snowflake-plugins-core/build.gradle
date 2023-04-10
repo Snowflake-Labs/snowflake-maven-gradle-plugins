@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 
 
@@ -10,10 +11,22 @@ repositories {
     mavenCentral()
 }
 
+// Release script REGEX requires that dependencies block curly braces do not share a line with any declaration
 dependencies {
     implementation 'net.snowflake:snowflake-jdbc:3.13.27'
     testImplementation 'org.apache.maven:maven-compat:3.3.9'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:5.1.1'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+}
+
+publishing {
+    publications {
+        myLib(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }

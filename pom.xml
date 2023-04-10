@@ -14,9 +14,8 @@
   <name>Snowflake Maven Plugin</name>
 
   <modules>
-    <module>snowflake-maven-plugin-module</module>
-    <module>snowflake-plugins-core</module>
     <module>snowflake-maven-plugin</module>
+    <module>snowflake-plugins-core</module>
   </modules>
 
   <!-- FIXME change it to the project's website -->
