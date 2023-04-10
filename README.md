@@ -187,9 +187,7 @@ Simply expose the following environment variables from the secrets provider:
     <version>0.1.0-SNAPSHOT</version>
     <configuration>
         <auth>
-            <!-- Supply either one of the URL or ACCOUNT properties -->
             <url>${env.MY_URL}</url>
-            <account>${env.MY_ACCOUNT}</account>
             <user>${env.MY_USER}</user>
             <password>${env.MY_PASSWORD}</password>
             <!-- optional auth configuration -->  

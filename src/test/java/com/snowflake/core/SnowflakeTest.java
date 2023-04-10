@@ -42,12 +42,46 @@ public class SnowflakeTest {
 
   @Test
   public void testUploadDependencies() throws SQLException {
-    Snowflake sf = new Snowflake(log::info, conn);
+    Snowflake sf = spy(new Snowflake(log::info, conn));
+    doNothing()
+        .when(sf)
+        .uploadDependencyIfExists(anyString(), anyString(), anyString(), anyString());
+
     Map<String, String> depsToStagePath = new HashMap<>();
     depsToStagePath.put("gson-2.10.jar", "com/google/gson/2.10/gson-2.10.jar");
     depsToStagePath.put("gson-2.11.jar", "com/google/gson/2.11/gson-2.11.jar");
     depsToStagePath.put("dep.jar", "com/google/dep/1.2.3/dep-1.2.3.jar");
     sf.uploadDependencies("target/dependency", "mystage", depsToStagePath);
+
+    verify(sf)
+        .uploadDependencyIfExists(
+            "target/dependency/dep.jar",
+            "mystage",
+            "com/google/dep/1.2.3/dep-1.2.3.jar",
+            "dep.jar");
+    verify(sf)
+        .uploadDependencyIfExists(
+            "target/dependency/gson-2.10.jar",
+            "mystage",
+            "com/google/gson/2.10/gson-2.10.jar",
+            "gson-2.10.jar");
+    verify(sf)
+        .uploadDependencyIfExists(
+            "target/dependency/gson-2.11.jar",
+            "mystage",
+            "com/google/gson/2.11/gson-2.11.jar",
+            "gson-2.11.jar");
+  }
+
+  @Test
+  public void testUploadFiles() throws SQLException {
+    Snowflake sf = new Snowflake(log::info, conn);
+    sf.uploadFiles(
+        "target/dependency/dep.jar", "mystage", "com/google/dep/1.2.3/dep-1.2.3.jar", false);
+    sf.uploadFiles(
+        "target/dependency/gson-2.10.jar", "mystage", "com/google/gson/2.10/gson-2.10.jar", false);
+    sf.uploadFiles(
+        "target/dependency/gson-2.11.jar", "mystage", "com/google/gson/2.11/gson-2.11.jar", false);
     verify(statement)
         .execute(
             "PUT file://target/dependency/dep.jar"
