@@ -109,7 +109,7 @@ Example plugin configuration on POM:
         <functions>
             <function>
                 <name>funcNameOnSnowflake</name>
-                <handler>ClassName.MethodName</handler>
+                <handler>PackageName.ClassName.MethodName</handler>
                 <args>
                     <arg>
                         <name>firstArg</name>
@@ -128,7 +128,7 @@ Example plugin configuration on POM:
         <procedures>
             <procedure>
                 <name>procNameOnSnowflake</name>
-                <handler>ClassName.SomeMethodName</handler>
+                <handler>PackageName.ClassName.SomeMethodName</handler>
                 <args>
                     <arg>
                         <name>a</name>
