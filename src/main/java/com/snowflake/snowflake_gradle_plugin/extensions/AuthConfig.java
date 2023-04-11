@@ -20,26 +20,15 @@ public class AuthConfig {
   private String db;
   private String schema;
 
+  // Return a map with all object properties
   public Map<String, String> getAuthMap() {
     Map<String, String> result = new HashMap<>();
-    if (url != null) {
-      result.put("url", url);
-    }
-    if (password != null) {
-      result.put("password", password);
-    }
-    if (user != null) {
-      result.put("user", user);
-    }
-    if (role != null) {
-      result.put("role", role);
-    }
-    if (db != null) {
-      result.put("db", db);
-    }
-    if (schema != null) {
-      result.put("schema", schema);
-    }
+    result.put("url", url);
+    result.put("password", password);
+    result.put("user", user);
+    result.put("role", role);
+    result.put("db", db);
+    result.put("schema", schema);
     return result;
   }
 }

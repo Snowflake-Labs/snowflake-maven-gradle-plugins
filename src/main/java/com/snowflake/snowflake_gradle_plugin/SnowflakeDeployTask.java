@@ -8,11 +8,18 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import javax.inject.Inject;
+
+import com.snowflake.core.UserDefined;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.options.Option;
 import org.slf4j.Logger;
 
 /** Plugin publish task entry point. Executes all actions associated with snowflakePublish */
@@ -22,31 +29,106 @@ public class SnowflakeDeployTask extends DefaultTask {
     this.dependencyLogFile = dependencyLogFile;
   }
 
-  private String PLUGIN = "snowflake";
+  private final String PLUGIN = "snowflake";
   private SnowflakeExtension extension =
       (SnowflakeExtension) getProject().getExtensions().getByName(PLUGIN);
   private Logger logger = Logging.getLogger(SnowflakeDeployTask.class);
+  // Snowflake connection authentication information for the task
+  private AuthConfig auth;
+  // Name of Snowflake stage for artifact uploads
+  private String stage;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-url", description = "Override the Snowflake auth URL")
+  private String authUrl;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-password", description = "Override the Snowflake auth password")
+  private String authPassword;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-user", description = "Override the Snowflake auth user")
+  private String authUser;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-role", description = "Override the Snowflake auth role")
+  private String authRole;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-db", description = "Override the Snowflake auth db")
+  private String authDb;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "auth-schema", description = "Override the Snowflake auth schema")
+  private String authSchema;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "deploy-name", description = "Specify a function or procedure name for a new deploy")
+  private String deployName;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "deploy-type", description = "Supply either 'function' or 'procedure' for a new deploy")
+  private String deployType;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "deploy-args", description = "Specify arguments for a new deploy")
+  private String deployArgs;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "deploy-handler", description = "Specify the handler method for a new deploy")
+  private String deployHandler;
+  @Optional
+  @Input
+  @Getter
+  @Setter
+  @Option(option = "deploy-returns", description = "Specify the return type for a new deploy")
+  private String deployReturns;
+
   // Temporary file which lists each dependency in the user project and their organization or
   // artifact ID. Populated by ListDependenciesTask
   private File dependencyLogFile;
   // Snowflake core instance configured for the user
   private Snowflake snowflake;
-  // Name of Snowflake stage for artifact uploads
-  private String stage;
-  private Set<UserDefinedContainer> udxs = new HashSet<>();
+  // Set of Function/Procedure containers inputted by the user from their build file
+  private Set<UserDefinedContainer> udxContainers = new HashSet<>();
 
   @TaskAction
   public void publish() throws IOException, SQLException {
+    auth = extension.getAuth();
     stage = extension.getStage();
     // TODO: Follow the user's configuration for project.libsDir
     String buildDirectory = getProject().getBuildDir() + SnowflakePlugin.libsString;
     String artifactFileName =
         String.format("%s-%s.jar", getProject().getName(), getProject().getVersion());
-    // TODO: Validate user configuration
-    udxs.addAll((Set<FunctionContainer>) getProject().getExtensions().getByName("functions"));
-    udxs.addAll((Set<ProcedureContainer>) getProject().getExtensions().getByName("procedures"));
-    validateUserConfig();
-    // TODO: Check for functions or procedure in CLI
+    udxContainers.addAll((Set<FunctionContainer>) getProject().getExtensions().getByName("functions"));
+    udxContainers.addAll((Set<ProcedureContainer>) getProject().getExtensions().getByName("procedures"));
+    // Validate user configuration of functions and procedures by converting the Gradle API containers into concrete Java objects
+    Set<UserDefinedConcrete> concreteUdxs = new HashSet<>();
+    for (UserDefinedContainer container : udxContainers) {
+      concreteUdxs.add(container.concrete());
+    }
+    appendCliUdxIfDefined(concreteUdxs);
+    validateUserConfig(concreteUdxs);
     // Get authentication options from properties file, gradle.build, and CLI to create
     // Snowflake connection
     createSnowflakeConnection();
@@ -57,21 +139,18 @@ public class SnowflakeDeployTask extends DefaultTask {
         String.format(buildDirectory + SnowflakePlugin.dependenciesString),
         stage,
         dependenciesToStagePaths);
-    for (UserDefinedContainer udx : udxs) {
+    for (UserDefinedConcrete udx : concreteUdxs) {
       snowflake.createFunctionOrProc(udx, stage, artifactFileName, dependenciesToStagePaths);
     }
     logger.info("Functions created!");
   }
 
-  private void validateUserConfig() {
+  private void validateUserConfig(Set<UserDefinedConcrete> udxs) {
     if (stage == null) {
       throw new IllegalArgumentException("'stage' name for file upload must be provided");
     }
     if (udxs.size() == 0) {
       throw new IllegalArgumentException("At least one function or procedure must be specified");
-    }
-    for (UserDefinedContainer udx : udxs) {
-      udx.throwIfNull();
     }
   }
 
@@ -83,7 +162,6 @@ public class SnowflakeDeployTask extends DefaultTask {
    */
   private void createSnowflakeConnection() throws IOException, SQLException {
     SnowflakeBuilder builder = new SnowflakeBuilder(logger::info);
-    AuthConfig auth = extension.getAuth();
     if (auth != null) {
       if (auth.getPropertiesFile() != null) {
         // User has supplied an authentication file name
@@ -98,7 +176,13 @@ public class SnowflakeDeployTask extends DefaultTask {
       // Read build.gradle auth config
       builder.config(auth.getAuthMap());
     }
-    // TODO: Read CLI auth config
+    // Read CLI auth config
+    builder.config("url", authUrl);
+    builder.config("user", authUser);
+    builder.config("password", authPassword);
+    builder.config("role", authRole);
+    builder.config("db", authDb);
+    builder.config("schema", authSchema);
     // Create snowflake JDBC Connection
     try {
       snowflake = builder.create();
@@ -181,5 +265,41 @@ public class SnowflakeDeployTask extends DefaultTask {
       }
     }
     return result;
+  }
+
+  /** Try to create a concrete Function/Procedure object  if ANY of the CLI arguments
+  * for a function/procedure are provided. Throws an error if the arguments are incomplete or malformed.
+  * If new Function/Procedure object is created, append it to the UDFs list
+  */
+  private void appendCliUdxIfDefined(Set<UserDefinedConcrete> udxs) {
+    UserDefinedConcrete udx;
+    Set<String> udxCliParams = new HashSet<>();
+    udxCliParams.add(deployType);
+    udxCliParams.add(deployName);
+    udxCliParams.add(deployArgs);
+    udxCliParams.add(deployHandler);
+    udxCliParams.add(deployReturns);
+
+    for (String udxCliParam : udxCliParams) {
+      if (udxCliParam != null) {
+          if (deployType == null) {
+            throw new IllegalArgumentException(
+                    "The type of the user defined creation must be specified. Type may be \"procedure\" or \"function\"");
+          }
+          switch (deployType.toLowerCase()) {
+            case UserDefined.procedure:
+              udx = new ProcedureConcrete(deployName, deployArgs, deployHandler, deployReturns);
+              break;
+            case UserDefined.function:
+              udx = new FunctionConcrete(deployName, deployArgs, deployHandler, deployReturns);
+              break;
+            default:
+              throw new IllegalArgumentException(
+                      "The specified type is not recognized. The type of the user defined creation may be \"procedure\" or \"function\"");
+          }
+        udxs.add(udx);
+        break;
+      }
+    }
   }
 }
