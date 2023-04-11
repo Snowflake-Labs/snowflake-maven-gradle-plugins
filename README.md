@@ -364,6 +364,24 @@ snowflake {
 }
 ```
 
+### Configuring with Command Line:
+Auth parameters can optionally be provided as arguments when running the plugin from the CLI.
+Values from CLI arguments will override any values set in the properties file or gradle build file:
+```
+gradle snowflakeDeploy --auth-url="myaccount.snowflakecomputing.com" --auth-user=”username” --auth-password=”password”  --auth-role=”myrole” --auth-db=”mydb” --auth-schema=”myschema”
+```
+
+A single function or procedure can also be specified through command line arguments.
+The command line function/procedure will be created along with any defined in `build.gradle`.
+The arguments have the following syntax:
+```
+gradle snowflakeDeploy --deploy-type=”{procedure | function}” --deploy-name=”<name>” --deploy-args=”[ <arg_name> <arg_data_type> ] [ , ... ]” --deploy-handler=”<class>.<handler>” --deploy-returns=”<data_type>”
+```
+
+As an example:
+```
+gradle clean build snowflakeDeploy --deploy-type="procedure" --deploy-name="mvnStringConcat" --deploy-args="a string, b string" --deploy-handler="SimpleUdf.stringConcat" --deploy-returns="string"
+```
 
 ## Contributing Gradle
 ```shell
