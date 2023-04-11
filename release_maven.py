@@ -14,7 +14,6 @@ pom_file_name = "pom.xml"
 # Copy source code from core and plugin modules
 copy_tree(path.join(maven_module_path, java_src_path), path.join(maven_release_path, java_src_path))
 copy_tree(path.join(core_path, java_src_path), path.join(maven_release_path, java_src_path))
-copy_tree
 
 # Parse pom xml
 ET.register_namespace('', "http://maven.apache.org/POM/4.0.0")
