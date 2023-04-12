@@ -2,10 +2,11 @@
 
 [//]: # (Maven Central links: )
 
-### [Jump to Maven usage](#maven-configuration)
-### [Jump to Gradle usage](#gradle-configuration)
+### [Jump to Maven instructions](#maven-configuration)
+### [Jump to Gradle instructions](#gradle-configuration)
 
 ## Overview
+
 This repo contains the source code for the Snowflake Maven and Gradle plugins, which will help developers publish [User-Defined Functions](https://docs.snowflake.com/en/sql-reference/udf-overview) (UDF) and [Stored Procedures](https://docs.snowflake.com/en/sql-reference/stored-procedures-overview) for Snowflake.
 The plugins can create a stage on Snowflake, copy your build artifact and dependency `.jar` files to the stage, and run the `CREATE...` DDL to create your UDF or stored procedure in the account.
 
@@ -13,11 +14,7 @@ The plugins can create a stage on Snowflake, copy your build artifact and depend
 
 # Maven
 
-## S Maven
-
-Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-maven)
-
-## Prereqs Maven
+## Maven Prereqs 
 
 | **Tool** | **Required Version** |
 |----------|----------------------|
@@ -161,7 +158,7 @@ Example plugin configuration on POM:
 </plugin>
 ```
 
-### Maven usage
+## Maven usage
 
 After configuration, run:
 
@@ -171,11 +168,11 @@ mvn clean package snowflake:deploy
 
 `mvn clean package` will build the project and `mvn snowflake:deploy` executes the plugin goal, deploying your objects to Snowflake.
 
-#### Usage in CI pipelines
+### Usage in CI pipelines
 
 As mentioned in [auth fields](#auth-fields), your account properties can be read directly from the environment variables of your CI pipeline. This can be helpful for keeping secrets out of source control, and to deploy to different environments (QA, UAT, production) but just changing the env vars in different pipelines.
 
-#### Command Line Usage:
+### Command Line Usage:
 
 Auth parameters can optionally be provided as arguments when running the plugin from the CLI.
 Values from CLI arguments will override any values set in the properties file **or** the POM:
@@ -216,16 +213,11 @@ mvn clean package snowflake:deploy \
 
 # Gradle
 
-## Setup Gradle
-
-Install the plugin from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-gradle)
-
-## Prereqs
+## Gradle Prereqs
 
 | **Tool** | **Required Version** |
 |----------|----------------------|
 | JDK      | 11                   |
-
 
 ## Gradle Configuration
 
@@ -344,7 +336,7 @@ snowflake {
 }
 ```
 
-### Gradle Usage
+## Gradle Usage
 
 After configuration, run the following to publish your functions and procedures:
 
@@ -352,7 +344,7 @@ After configuration, run the following to publish your functions and procedures:
 gradle clean assemble snowflakeDeploy
 ```
 
-#### Usage in CI pipelines
+### Usage in CI pipelines
 
 As mentioned in [auth fields](#auth-fields-2), your account properties can be read directly from the environment variables of your CI pipeline. This can be helpful for keeping secrets out of source control, and to deploy to different environments (QA, UAT, production) but just changing the env vars in different pipelines.
 
