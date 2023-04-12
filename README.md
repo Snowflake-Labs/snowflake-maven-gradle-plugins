@@ -1,5 +1,10 @@
 # Snowflake plugins for Maven and Gradle
 
+[//]: # (Maven Central links: )
+## Usage:
+### [Jump to Maven configuration](#maven-configuration)
+### [Jump to Gradle usage](#gradle-configuration)
+
 ## Overview
 This repo contains the source code for the Snowflake Maven and Gradle plugins, which will help developers publish [User-Defined Functions](https://docs.snowflake.com/en/sql-reference/udf-overview) (UDF) and [Stored Procedures](https://docs.snowflake.com/en/sql-reference/stored-procedures-overview) for Snowflake.
 The plugin can create a stage on Snowflake, copy artifact and dependency `.jar` files to the stage, and run the command to create the User-Defined Function or Stored procedure.
@@ -20,13 +25,14 @@ At a high level, these plugins...
 # Maven
 
 ## Setup Maven
-Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#Contributing)
+Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-maven)
 
-## Prereqs
+## Prereqs Maven
 | **Tool** | **Required Version** |
 |----------|----------------------|
 | JDK      | 11                   |
 | Maven    | 3                    |
+
 
 ## Maven Configuration
 
@@ -96,7 +102,7 @@ TODO:
             <role>${env.MY_ROLE}</role>
             <db>${env.MY_ORG_DB}</db>
             <schema>${env.SCHEMA}</schema>
-          </auth>
+        </auth>
     </configuration>
 </plugin>
 ```
@@ -130,7 +136,7 @@ Example plugin configuration on POM:
         <functions>
             <function>
                 <name>funcNameOnSnowflake</name>
-                <handler>ClassName.MethodName</handler>
+                <handler>PackageName.ClassName.MethodName</handler>
                 <args>
                     <arg>
                         <name>firstArg</name>
@@ -149,7 +155,7 @@ Example plugin configuration on POM:
         <procedures>
             <procedure>
                 <name>procNameOnSnowflake</name>
-                <handler>ClassName.SomeMethodName</handler>
+                <handler>PackageName.ClassName.SomeMethodName</handler>
                 <args>
                     <arg>
                         <name>a</name>
@@ -205,7 +211,7 @@ Auth parameters can optionally be provided as arguments when running the plugin 
 Values from CLI arguments will override any values set in the properties file or POM:
 
 ```bash
-mvn snowflake-udx:deploy -Ddeploy.auth.user=”username” -Ddeploy.auth.password=”password” -Ddeploy.auth.url=”myaccount.snowflakecomputing.com” -Ddeploy.auth.account=”myaccount” -Ddeploy.auth.role=”myrole” -Ddeploy.auth.db=”mydb” -Ddeploy.auth.schema=”myschema”
+mvn snowflake-udx:deploy -Ddeploy.auth.user="username" -Ddeploy.auth.password="password" -Ddeploy.auth.url="myaccount.snowflakecomputing.com" -Ddeploy.auth.role="myrole" -Ddeploy.auth.db="mydb" -Ddeploy.auth.schema="myschema"
 ```
 
 A single function or procedure can also be specified through command line arguments. 
@@ -239,7 +245,7 @@ Install the plugin from Maven Central in the future (WIP). For now, follow the[ 
 | JDK      | 11                   |
 
 
-## Usage Gradle
+## Gradle Configuration
 
 Add the plugin to your project's `build.gradle`
 ```groovy
@@ -258,15 +264,132 @@ pluginManagement {
 }
 ```
 
-Then:
+### Authentication
+
+You can provide your account authentication information using a [properties file](https://docs.snowflake.com/en/developer-guide/snowpark/java/creating-session) or directly in the plugin config.
+
+#### Properties File
+Create a properties file `profile.properties` in the root of the project
+with information to establish a JDBC connection to your Snowflake account:
+```properties
+# profile.properties
+URL=https://MY_ACCOUNT_NAME.snowflakecomputing.com:443
+USER=username
+PASSWORD=password
+# Optional properties:
+ROLE=ACCOUNTADMIN
+WAREHOUSE=DEMO_WH
+DB=MY_DB
+SCHEMA=MY_SCHEMA
+```
+
+In your `buid.gradle`, provide configuration for auth to the plugin:
+```groovy
+snowflake {
+ auth {
+  propertiesFile = "profile.properties"
+ }
+}
+```
+
+- `propertiesFile` should point to the auth properties file created above
+
+### Gradle Plugin Configuration
+
+Specify UDFs and Stored Procedures that should be published to Snowflake
+by creating a new `function` closure in the `functions` block or `procedure` closure under `procedures` for each.
+
+The arguments follow the [`CREATE FUNCTION`](https://docs.snowflake.com/en/sql-reference/sql/create-function#syntax)
+and [`CREATE PROCEDURE`](https://docs.snowflake.com/en/sql-reference/sql/create-procedure) syntax:
+
+- `stage` is the name of the internal stage that will be created (if it doesn't exist) and where files will be uploaded. Note: Choose a new stage name or an existing stage where artifact and dependency `.Jar` files can be uploaded.
+- `functionName` or `procedureName` is the name to be used on Snowflake
+- `handler` is `packageName.className.methodName` for the handler method
+- `args` is a list of argument strings for the function which are formatted as "[ <arg_name> <arg_data_type> ] [ , ... ]"
+- `returns` is the return type
+
+Example plugin configuration on POM:
+
+```groovy
+plugins {
+ id 'com.snowflake.snowflake-gradle-plugin'
+}
+
+
+snowflake {
+ auth {
+  propertiesFile = './path/to/file'
+ }
+ stage = 'STAGE_NAME'
+ functions {
+  functionName {
+   args = ["a string", "b int"]
+   returns = "string"
+   handler = "PackageName.ClassName.methodName"
+  }
+  // More functions here
+ }
+ procedures {
+  procedureName {
+   args = ["a string, b string"]
+   returns = "string"
+   handler = "PackageName.ClassName.methodName"
+  }
+  // More procedures here
+ }
+}
+
+```
+
+### Gradle Usage
+
+After configuration, run the following to publish your functions and procedures:
 ```shell
-gradle clean assemble snowflakePublish
+gradle clean assemble snowflakeDeploy
+```
+
+### Configuring for CI Pipelines
+
+Auth can be read directly from the environment of your CI pipeline, instead of from a properties file.
+
+Simply expose the following environment variables from the secrets provider:
+
+```groovy
+snowflake {
+ auth {
+  url = System.getenv('SNOWFLAKEURL')
+  user = System.getenv('SNOWFLAKEUSER')
+  password = System.getenv('SNOWFLAKEPW')
+  // Optional:
+  role = System.getenv('SNOWFLAKEROLE')
+  db = System.getenv('SNOWFLAKEDB')
+  schema = System.getenv('SNOWFLAKESCHEMA')
+ }
+}
+```
+
+### Configuring with Command Line:
+Auth parameters can optionally be provided as arguments when running the plugin from the CLI.
+Values from CLI arguments will override any values set in the properties file or gradle build file:
+```
+gradle snowflakeDeploy --auth-url="myaccount.snowflakecomputing.com" --auth-user=”username” --auth-password=”password”  --auth-role=”myrole” --auth-db=”mydb” --auth-schema=”myschema”
+```
+
+A single function or procedure can also be specified through command line arguments.
+The command line function/procedure will be created along with any defined in `build.gradle`.
+The arguments have the following syntax:
+```
+gradle snowflakeDeploy --deploy-type=”{procedure | function}” --deploy-name=”<name>” --deploy-args=”[ <arg_name> <arg_data_type> ] [ , ... ]” --deploy-handler=”<class>.<handler>” --deploy-returns=”<data_type>”
+```
+
+As an example:
+```
+gradle clean build snowflakeDeploy --deploy-type="procedure" --deploy-name="mvnStringConcat" --deploy-args="a string, b string" --deploy-handler="SimpleUdf.stringConcat" --deploy-returns="string"
 ```
 
 ## Notes
 
-### Dependency reuse
-
+#### Dependency reuse
 When uploading to stage, the plugin will structure dependency artifacts like a local `.m2` cache,
 with directories following an artifact's organization name and version.
 

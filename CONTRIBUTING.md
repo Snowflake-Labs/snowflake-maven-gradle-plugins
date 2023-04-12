@@ -61,16 +61,6 @@ chmod -R +x src/it
 mvn verify -P run-its
 ```
 
-### IntelliJ
-
-If IntelliJ intellisense is highlighting errors within `snowflake_gradle_plugin` or `snowflake_maven_plugin`, you can fix it with the following:
-
-- Close the IDE
-- Open the project with IntelliJ File -> Open -> select `build.gradle` -> Open as project
-- In the 'Maven' tab of IntelliJ, click the refresh icon to "Reload all maven projects"
-
-This ensures that both Maven and Gradle are active on their respective compile sources, which will help resolve intellisense errors
-
 ## Gradle
 
 Clone the repository
@@ -100,6 +90,24 @@ pluginManagement {
 ```
 
 Now you can test your changes in a test project.
+
+### IntelliJ
+
+To contribute to the gradle plugin:
+IntelliJ `File` -> `Open` -> select `build.gradle` file -> Open as project
+
+To contribute to the maven plugin:
+IntelliJ `File` -> `Open` -> select `pom.xml` file -> Open as project
+
+To switch between the two plugins, delete the `.idea` IntelliJ cache folder and open the other plugin
+
+If IntelliJ intellisense is highlighting errors within `snowflake_gradle_plugin` or `snowflake_maven_plugin`, you can fix it with the following:
+
+- Close the IDE
+- Open the project with IntelliJ File -> Open -> select `build.gradle` file -> Open as project
+- In the 'Maven' tab of IntelliJ, click the refresh icon to "Reload all maven projects"
+
+This ensures that both Maven and Gradle are active on their respective compile sources, which will help resolve intellisense errors
 
 ## Pull Requests
 

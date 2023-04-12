@@ -20,11 +20,13 @@ public class SnowflakeBuilder {
   }
 
   public SnowflakeBuilder config(String key, String val) {
-    key = key.toLowerCase();
-    if (key.equals("url")) {
-      url = formatUrl(val);
-    } else {
-      options.put(key, val);
+    if (val != null) {
+      key = key.toLowerCase();
+      if (key.equals("url")) {
+        url = formatUrl(val);
+      } else {
+        options.put(key, val);
+      }
     }
     return this;
   }
