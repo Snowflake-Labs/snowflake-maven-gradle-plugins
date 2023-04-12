@@ -13,10 +13,12 @@ The plugins can create a stage on Snowflake, copy your build artifact and depend
 
 # Maven
 
-## Setup Maven
+## S Maven
+
 Install the plugins from Maven Central in the future (WIP). For now, follow the[ local build and installation process. ](#contributing-maven)
 
 ## Prereqs Maven
+
 | **Tool** | **Required Version** |
 |----------|----------------------|
 | JDK      | 11                   |
@@ -402,3 +404,10 @@ with directories following an artifact's organization name and version.
 
 By default, build artifacts will overwrite upon each publish
 but existing dependencies files will not be uploaded again unless the version changes.
+
+### Contributors
+
+Special thanks to...
+
+- [Stewart Bryson](https://github.com/stewartbryson) for guidance and providing a reference in his own Gradle plugin for Snowflake
+- [Jonathan Cui](https://github.com/Jonathancui123) for bootstrapping the project during his internship at Snowflake
