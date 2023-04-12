@@ -111,4 +111,4 @@ This ensures that both Maven and Gradle are active on their respective compile s
 
 ## Pull Requests
 
-
+When opening a Pull Request, tag `sfc-gh-jfreeberg` and `sfc-gh-bli` for a review.
