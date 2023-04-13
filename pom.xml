@@ -168,10 +168,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <testExcludes>
-            <testExclude>**/snowflake_gradle_plugin/**</testExclude>
+            <testExclude>**/gradle/**</testExclude>
           </testExcludes>
           <excludes>
-            <exclude>**/snowflake_gradle_plugin/**</exclude>
+            <exclude>**/gradle/**</exclude>
           </excludes>
           <source>8</source>
           <target>8</target>
