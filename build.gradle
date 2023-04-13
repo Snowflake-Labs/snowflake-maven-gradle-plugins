@@ -17,12 +17,12 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 sourceSets {
 	main {
 		java {
-			exclude 'com/snowflake/snowflake_maven_plugin/**'
+			exclude 'com/snowflake/plugins/udf/maven/**'
 		}
 	}
 	test {
 		java {
-			exclude "com/snowflake/snowflake_maven_plugin/**"
+			exclude "com/snowflake/plugins/udf/maven/**"
 		}
 	}
 }
