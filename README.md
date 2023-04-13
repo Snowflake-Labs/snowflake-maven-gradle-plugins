@@ -341,7 +341,7 @@ snowflake {
 After configuration, run the following to publish your functions and procedures:
 
 ```shell
-gradle clean assemble snowflakeDeploy
+gradle clean build snowflakeDeploy
 ```
 
 ### Usage in CI pipelines
