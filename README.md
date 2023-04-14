@@ -1,5 +1,7 @@
 # Snowflake plugins for Maven and Gradle
 
+These are open source and community supported tools. Support is provided on a best effort basis by project contributors.
+
 [//]: # (Maven Central links: )
 
 ### [Jump to Maven instructions](#maven-configuration)
