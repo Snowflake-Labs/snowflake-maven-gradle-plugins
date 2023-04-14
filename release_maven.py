@@ -19,8 +19,6 @@ copy_tree(path.join(core_path, java_src_path), path.join(maven_release_path, jav
 ET.register_namespace('', "http://maven.apache.org/POM/4.0.0")
 pom = ET.parse(path.join(maven_module_path, pom_file_name))
 pom_project = pom.getroot()
-# Change the artifact ID
-pom_project.find("{*}artifactId").text = "snowflake-maven-plugin"
 # Remove reference to parent POM
 pom_parent_elem = pom_project.find("{*}parent")
 version_text = pom_parent_elem.find("{*}version").text

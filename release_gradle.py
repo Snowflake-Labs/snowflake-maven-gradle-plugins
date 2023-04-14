@@ -37,7 +37,10 @@ with open(path.join(gradle_release_path, build_file_name), 'r') as release_build
 for i, line in enumerate(release_build_lines):
     if "snowflake-plugins-core" in line:
         # Replace the line with the new lines
-        release_build_lines = release_build_lines[:i] + core_dependencies_lines + release_build_lines[i+1:]
+        if (core_dependencies_lines): 
+            release_build_lines = release_build_lines[:i] + core_dependencies_lines + release_build_lines[i+1:]
+        else:
+            release_build_lines = release_build_lines[:i] + release_build_lines[i+1:]
         break
 # Overwrite the release build script
 with open(path.join(gradle_release_path, build_file_name), 'w') as release_build_file:
