@@ -27,7 +27,7 @@ public class SnowflakePlugin implements Plugin<Project> {
 
     // Register tasks for the plugin
     TaskContainer tasks = project.getTasks();
-    tasks.register("listDependenciesTask", ListDependenciesTask.class);
+    tasks.create("listDependenciesTask", ListDependenciesTask.class);
     tasks.create("copyDependenciesTask", CopyDependenciesTask.class);
     tasks
         .create(

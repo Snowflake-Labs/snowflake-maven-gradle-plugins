@@ -42,7 +42,7 @@ gradlePlugin {
 	plugins {
 		snowflakeGradlePlugin {
 			id = 'com.snowflake.snowflake-gradle-plugin'
-			implementationClass = 'com.snowflake.snowflake_gradle_plugin.SnowflakePlugin'
+			implementationClass = 'com.snowflake.plugins.udf.gradle.SnowflakePlugin'
 		}
 	}
 }
