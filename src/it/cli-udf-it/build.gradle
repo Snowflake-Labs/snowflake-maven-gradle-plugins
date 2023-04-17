@@ -11,11 +11,4 @@ snowflake {
         propertiesFile = "$projectDir/../profile.properties"
     }
     stage = System.getenv('SNOWFLAKEPLUGINSTAGE')
-    functions {
-        simpleUdfItMyStringConcat {
-            handler = "SimpleUdf.myStringConcat"
-            args = ["a string", "b string"]
-            returns = "string"
-        }
-    }
 }

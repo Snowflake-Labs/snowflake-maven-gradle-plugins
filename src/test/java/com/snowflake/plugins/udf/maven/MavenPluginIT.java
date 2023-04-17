@@ -1,9 +1,7 @@
 package com.snowflake.plugins.udf.maven;
 
-import static org.junit.Assert.assertEquals;
-
+import com.snowflake.plugins.udf.core.UdxChecker;
 import java.io.*;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
@@ -19,6 +17,7 @@ public class MavenPluginIT {
   private String runScriptPath = "./src/it/runtest.sh";
   private String propertiesFilePath = "./src/it/profile.properties";
   private SnowflakeConnectionV1 conn;
+  private UdxChecker checker;
   private String stageName =
       "SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST_"
           + Math.abs(new Random(System.nanoTime()).nextInt());
@@ -28,6 +27,7 @@ public class MavenPluginIT {
     Properties prop = new Properties();
     prop.load(new FileInputStream(propertiesFilePath));
     conn = new SnowflakeConnectionV1("jdbc:snowflake://" + prop.get("URL").toString(), prop);
+    checker = new UdxChecker(conn);
   }
 
   @After
@@ -41,7 +41,7 @@ public class MavenPluginIT {
     String testName = "simple-udf-it";
     try {
       runTest(testName);
-      checkStringFunction(functionName, "'hi', ' there'", "hi there");
+      checker.checkStringFunction(functionName, "'hi', ' there'", "hi there");
     } finally {
       Statement statement = conn.createStatement();
       statement.execute(String.format("DROP FUNCTION IF EXISTS %s (string, string)", functionName));
@@ -57,9 +57,9 @@ public class MavenPluginIT {
     String testName = "multiple-udf-proc-it";
     try {
       runTest(testName);
-      checkStringFunction(functionName, "35", "{\"brand\":\"snowflake\",\"length\":35}");
-      checkStringProcedure(procedureName, "'hi', ' there'", "hi there");
-      checkStringFunction(functionName2, "'hi', ' there'", "hi there");
+      checker.checkStringFunction(functionName, "35", "{\"brand\":\"snowflake\",\"length\":35}");
+      checker.checkStringProcedure(procedureName, "'hi', ' there'", "hi there");
+      checker.checkStringFunction(functionName2, "'hi', ' there'", "hi there");
     } finally {
       Statement statement = conn.createStatement();
       statement.execute(
@@ -75,7 +75,7 @@ public class MavenPluginIT {
     String functionName = "simpleUdfItMyStringConcat";
     String testName = "cli-udf-it";
     try {
-      runTestWithArgs(
+      runTest(
           testName,
           true,
           String.format(
@@ -84,7 +84,7 @@ public class MavenPluginIT {
                   + "-Ddeploy.returns=string",
               functionName),
           "-Ddeploy.args=a string, b string");
-      checkStringFunction(functionName, "'hi', ' there'", "hi there");
+      checker.checkStringFunction(functionName, "'hi', ' there'", "hi there");
     } finally {
       Statement statement = conn.createStatement();
       statement.execute(String.format("DROP FUNCTION IF EXISTS %s (string, string)", functionName));
@@ -107,7 +107,7 @@ public class MavenPluginIT {
   // We pass "-Ddeploy.args="a string, b string"" as an unsplit arg to the runtest.sh script
   // This is so that the spaces in "-Ddeploy.args=a string, b string" doesn't cause this section to
   // be parsed as another lifecycle goal
-  private void runTestWithArgs(String testName, boolean withArgs, String args, String unsplitArg) {
+  private void runTest(String testName, boolean withArgs, String args, String unsplitArg) {
     // Start the process.
     ProcessBuilder processBuilder =
         new ProcessBuilder(
@@ -124,25 +124,6 @@ public class MavenPluginIT {
   }
 
   private void runTest(String testName) {
-    runTestWithArgs(testName, false, "", "");
-  }
-
-  private void checkStringFuncProc(
-      String invocation, String functionName, String args, String expected) throws SQLException {
-    Statement statement = conn.createStatement();
-    ResultSet rs =
-        statement.executeQuery(String.format("%s %s(%s)", invocation, functionName, args));
-    rs.next();
-    assertEquals(expected, rs.getString(1));
-  }
-
-  private void checkStringFunction(String functionName, String args, String expected)
-      throws SQLException {
-    checkStringFuncProc("SELECT", functionName, args, expected);
-  }
-
-  private void checkStringProcedure(String functionName, String args, String expected)
-      throws SQLException {
-    checkStringFuncProc("CALL", functionName, args, expected);
+    runTest(testName, false, "", "");
   }
 }
