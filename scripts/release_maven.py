@@ -1,7 +1,9 @@
 from distutils.dir_util import copy_tree
-from os import path, chdir, getcwd
+from os import path, chdir, getcwd, chmod
 import subprocess
 import xml.etree.ElementTree as ET
+import shutil
+import stat
 
 
 maven_module_path = "snowflake-maven-plugin"
@@ -9,11 +11,15 @@ core_path = "snowflake-plugins-core"
 maven_release_path = "release/snowflake-maven-plugin"
 java_src_path = "src/main/java"
 pom_file_name = "pom.xml"
+scripts_path = "scripts/"
+deploy_script = "deploy.sh"
 
 
-# Copy source code from core and plugin modules
+# Copy source code from core and plugin modules to release folder
 copy_tree(path.join(maven_module_path, java_src_path), path.join(maven_release_path, java_src_path))
 copy_tree(path.join(core_path, java_src_path), path.join(maven_release_path, java_src_path))
+# Copy deploy script to release folder
+shutil.copyfile(path.join(scripts_path, deploy_script), path.join(maven_release_path, deploy_script))
 
 # Parse pom xml
 ET.register_namespace('', "http://maven.apache.org/POM/4.0.0")
@@ -44,4 +50,5 @@ for dependency in core_pom_dependencies:
 pom.write(path.join(maven_release_path, pom_file_name))
 
 chdir(path.join(getcwd(), maven_release_path))
-p = subprocess.run(["mvn", "install"], check=True)
+chmod("./deploy.sh", stat.S_IRWXU)
+p = subprocess.run(["./deploy.sh"], check=True)
