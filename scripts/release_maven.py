@@ -4,7 +4,8 @@ import subprocess
 import xml.etree.ElementTree as ET
 import shutil
 import stat
-
+import sys
+print(sys.version_info) 
 
 maven_module_path = "snowflake-maven-plugin"
 core_path = "snowflake-plugins-core"
