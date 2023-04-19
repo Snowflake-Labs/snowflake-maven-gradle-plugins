@@ -1,5 +1,5 @@
 from distutils.dir_util import copy_tree
-from os import path, chdir, getcwd, chmod
+from os import path, chdir, getcwd, chmod, listdir
 import subprocess
 import xml.etree.ElementTree as ET
 import shutil
@@ -25,8 +25,13 @@ shutil.copyfile(path.join(scripts_path, deploy_script), path.join(maven_release_
 ET.register_namespace('', "http://maven.apache.org/POM/4.0.0")
 pom = ET.parse(path.join(maven_module_path, pom_file_name))
 pom_project = pom.getroot()
+print(f"Current working directory: {getcwd()}")
+print(f"Directory contents: {listdir()}")
+print(f"Seeking file: {path.join(maven_module_path, pom_file_name)}")
+print(ET.tostring(pom_project))
 # Remove reference to parent POM
 pom_parent_elem = pom_project.find("{*}parent")
+print(pom_parent_elem)
 version_text = pom_parent_elem.find("{*}version").text
 pom_project.remove(pom_parent_elem)
 # Set release version
