@@ -31,7 +31,7 @@ print(f"Directory contents: {listdir()}")
 print(f"Seeking file: {path.join(maven_module_path, pom_file_name)}")
 print(ET.tostring(pom_project))
 # Remove reference to parent POM
-pom_parent_elem = pom_project.find("{*}parent")
+pom_parent_elem = pom_project.find("parent")
 print(pom_parent_elem)
 version_text = pom_parent_elem.find("{*}version").text
 pom_project.remove(pom_parent_elem)
