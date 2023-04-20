@@ -2,7 +2,7 @@
 
 # This script will be run after being copied to the Maven Plugin release folder by release_maven.py
 
-export GPG_KEY_ID="Snowflake Computing"
+# export GPG_KEY_ID="Snowflake Computing"
 export SONATYPE_USER="$sonatype_user"
 export SONATYPE_PWD="$sonatype_password"
 

@@ -217,7 +217,7 @@
                                     <file>target/${project.artifactId}-${project.version}.jar</file>
                                     <repositoryId>ossrh</repositoryId>
                                     <!-- Temporarily using internal maven repository under the "OSSRH" name for testing -->
-                                    <url>https://nexus.int.snowflakecomputing.com/repository/Releases/</url>
+                                    <url>https://nexus.int.snowflakecomputing.com/repository/Snapshots/</url>
                                     <pomFile>pom.xml</pomFile>
                                     <keyname>${env.GPG_KEY_ID}</keyname>
                                     <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
