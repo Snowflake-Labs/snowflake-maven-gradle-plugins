@@ -32,18 +32,13 @@ namespaces = {node[0]: node[1] for _, node in ET.iterparse(path.join(maven_modul
 for key, value in namespaces.items():
     ET.register_namespace(key, value)
 default_ns = "{" + namespaces[""] + "}"
-
-print(f"default namespace is {default_ns}")
-
 pom = ET.parse(path.join(maven_module_path, pom_file_name))
 pom_project = pom.getroot()
 print(f"Current working directory: {getcwd()}")
 print(f"Directory contents: {listdir()}")
 print(f"Seeking file: {path.join(maven_module_path, pom_file_name)}")
-print(ET.tostring(pom_project))
 # Remove reference to parent POM
 pom_parent_elem = pom_project.find(".//" + default_ns + "parent")
-print(pom_parent_elem)
 version_text = pom_parent_elem.find(".//" + default_ns + "version").text
 pom_project.remove(pom_parent_elem)
 # Set release version
@@ -65,7 +60,7 @@ for dependency in core_pom_dependencies:
     pom_dependencies.append(dependency)
 # Write new pom to release folder
 pom.write(path.join(maven_release_path, pom_file_name))
-
+print("Created new POM and source code in release folder")
 chdir(path.join(getcwd(), maven_release_path))
 chmod("./deploy.sh", stat.S_IRWXU)
-# p = subprocess.run(["./deploy.sh"], check=True)
+p = subprocess.run(["./deploy.sh"], check=True)
