@@ -56,64 +56,12 @@ MVN_OPTIONS+=(
   "--batch-mode"
 )
 
-# For uploading to local and generate asc files
-cat > $OSSRH_DEPLOY_SETTINGS_XML << SETTINGS.XML
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <servers>
-    <server>
-      <id>ossrh</id>
-      <username>$SONATYPE_USER</username>
-      <password>$SONATYPE_PWD</password>
-    </server>
-  </servers>
-  <profiles>
-      <profile>
-        <id>ossrh</id>
-        <activation>
-          <activeByDefault>true</activeByDefault>
-        </activation>
-        <properties>
-          <gpg.executable>gpg2</gpg.executable>
-          <gpg.keyname>$GPG_KEY_ID</gpg.keyname>
-          <gpg.passphrase>$GPG_KEY_PASSPHRASE</gpg.passphrase>
-        </properties>
-      </profile>
-    </profiles>
-</settings>
-SETTINGS.XML
-
 if [ "$PUBLISH" = true ]; then
   echo "[Info] Sign package and deploy to staging area"
   mvn deploy ${MVN_OPTIONS[@]} -Dossrh-deploy -DskipTests
 
 else
-  # TODO: Modify this "else" block for plugin repo
-  # generate java doc before release
-  scripts/generateJavaDoc.sh
-
-  #release to s3
-  echo "[Info] Release to S3"
-  mvn --settings $OSSRH_DEPLOY_SETTINGS_XML -DskipTests clean package
-
-  cd target
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.asc"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.md5"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.sha256"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.zip"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "*.tar.gz"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-jenkins/repository/snowparkclient/$github_version_tag/ --recursive --exclude "*" --include "fat-test-snowpark-*.jar"
-
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.asc"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.md5"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.sha256"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.zip"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "*.tar.gz"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "fat-snowpark-*.jar"
-  aws s3 cp . s3://sfc-eng-data/client/snowparkclient/releases/$github_version_tag/ --recursive --exclude "*" --include "fat-test-snowpark-*.jar"
+  # TODO: Publish to internal maven when PUBLISH=False
+    echo "[Info] Sign package and deploy to staging area"
+    mvn deploy ${MVN_OPTIONS[@]} -Dossrh-deploy -DskipTests
 fi
