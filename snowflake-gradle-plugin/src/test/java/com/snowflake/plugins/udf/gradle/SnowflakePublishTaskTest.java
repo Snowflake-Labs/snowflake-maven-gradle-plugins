@@ -27,7 +27,7 @@ public class SnowflakeDeployTaskTest {
 
     Map<String, String> expectedComplex = new HashMap<>();
     expectedComplex.put(
-        "testing-support-lib-0.1.jar", "com/android/support/test/testing-support-lib/0.1");
+            "testing-support-lib-0.1.jar", "com/android/support/test/testing-support-lib/0.1");
     expectedComplex.put("objenesis-2.1.jar", "org/objenesis/objenesis/2.1");
     expectedComplex.put("javawriter-2.1.1.jar", "com/squareup/javawriter/2.1.1");
     expectedComplex.put("junit-4.11.jar", "junit/junit/4.11");
@@ -36,25 +36,25 @@ public class SnowflakeDeployTaskTest {
     expectedComplex.put("hamcrest-integration-1.1.jar", "org/hamcrest/hamcrest-integration/1.1");
     expectedComplex.put("hamcrest-core-1.3.jar", "org/hamcrest/hamcrest-core/1.3");
     expectedComplex.put(
-        "espresso-core-2.0.jar", "com/android/support/test/espresso/espresso-core/2.0");
+            "espresso-core-2.0.jar", "com/android/support/test/espresso/espresso-core/2.0");
     expectedComplex.put(
-        "powermock-api-mockito-1.5.6.jar", "org/powermock/powermock-api-mockito/1.5.6");
+            "powermock-api-mockito-1.5.6.jar", "org/powermock/powermock-api-mockito/1.5.6");
     expectedComplex.put("junit-dep-4.10.jar", "junit/junit-dep/4.10");
     expectedComplex.put("powermock-core-1.5.6.jar", "org/powermock/powermock-core/1.5.6");
     expectedComplex.put(
-        "powermock-api-support-1.5.6.jar", "org/powermock/powermock-api-support/1.5.6");
+            "powermock-api-support-1.5.6.jar", "org/powermock/powermock-api-support/1.5.6");
     expectedComplex.put(
-        "powermock-module-junit4-common-1.5.6.jar",
-        "org/powermock/powermock-module-junit4-common/1.5.6");
+            "powermock-module-junit4-common-1.5.6.jar",
+            "org/powermock/powermock-module-junit4-common/1.5.6");
     expectedComplex.put(
-        "powermock-module-junit4-1.5.6.jar", "org/powermock/powermock-module-junit4/1.5.6");
+            "powermock-module-junit4-1.5.6.jar", "org/powermock/powermock-module-junit4/1.5.6");
     verifyDependenciesToStagePaths("logComplex.txt", expectedComplex);
   }
 
   // Runs the mapDependenciesToStagePathsHelper on the input depdendency.log file and compares with
   // the expected result
   private void verifyDependenciesToStagePaths(String inputFile, Map<String, String> expectedResult)
-      throws IOException {
+          throws IOException {
     LineIterator it = null;
     Map<String, String> result = null;
     try {
