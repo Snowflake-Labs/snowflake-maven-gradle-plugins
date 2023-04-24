@@ -343,8 +343,9 @@ snowflake {
 After configuration, run the following to publish your functions and procedures:
 
 ```shell
-gradle clean build snowflakeDeploy
+gradle snowflakeDeploy
 ```
+The `snowflakeDeploy` task will trigger the `build` task if `build` is not up to date.
 
 ### Usage in CI pipelines
 
