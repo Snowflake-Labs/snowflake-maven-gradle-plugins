@@ -1,0 +1,45 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id("io.freefair.lombok") version "8.0.1"
+}
+
+// Update release script to copy group and version from parent build script
+group = 'com.snowflake'
+version = "0.1.0-SNAPSHOT"
+description = 'Snowflake Gradle Plugin'
+java.sourceCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'net.snowflake:snowflake-jdbc:3.13.27'
+    api 'commons-io:commons-io:2.11.0'
+    testImplementation 'junit:junit:4.12'
+    implementation project(':snowflake-plugins-core')
+}
+
+gradlePlugin {
+    plugins {
+        snowflakeGradlePlugin {
+            id = 'com.snowflake.snowflake-gradle-plugin'
+            implementationClass = 'com.snowflake.plugins.udf.gradle.SnowflakePlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = getGroup()
+            artifactId = getName()
+            version = getVersion()
+            from(components.java)
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}

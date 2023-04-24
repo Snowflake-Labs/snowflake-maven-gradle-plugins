@@ -4,9 +4,9 @@ Thank you for your interest in contributing to the Maven and Gradle plugins!
 
 ## Project structure
 
-- [`src/main/java/com/snowflake/core`](src/main/java/com/snowflake/core) contains shared utlities and classes for both the Maven and Gradle implementations
-- [`src/main/java/com/snowflake/snowflake_maven_plugin`](src/main/java/com/snowflake/snowflake_maven_plugin) contains the implementation of the **Maven** plugin
-- [`src/main/java/com/snowflake/snowflake_gradle_plugin`](src/main/java/com/snowflake/snowflake_gradle_plugin) contains the implementation of the **Gradle** plugin
+- [`snowflake-plugins-core`](snowflake-plugins-core) contains shared utlities and classes for both the Maven and Gradle implementations
+- [`snowflake-maven-plugin`](snowflake-maven-plugin) contains the implementation of the **Maven** plugin
+- [`snowflake-gradle-plugin`](snowflake-gradle-plugin) contains the implementation of the **Gradle** plugin
 
 ## Environment setup
 
@@ -24,7 +24,7 @@ cd snowflake-maven-gradle-plugins/
 mvn test
 
 # Install a snapshot of the plugin into your local .m2 repository
-mvn install
+mvn install -Dgpg.skip
 ```
 
 The snapshot of the plugin in the local .m2 repository should now be accessible from other Maven projects.
@@ -38,7 +38,7 @@ Unit tests can be run with:
 mvn test
 ```
 
-A Snowflake Account is needed for integration tests. Create a `profile.properties` file in `/src/it/`:
+A Snowflake Account is needed for integration tests. Create a `profile.properties` file in `snowflake-maven-plugin/src/it`:
 
 > WARNING: Ensure that the credential you provide below are for a development account/database. Don't use production credentials.
   
@@ -58,7 +58,7 @@ To run integration tests:
 # Set execution privileges for shell scripts
 chmod -R +x src/it 
 # Then, integration tests can be run the `run-its` maven profile:
-mvn verify -P run-its
+mvn verify -Dgpg.skip -P run-its
 ```
 
 ## Gradle

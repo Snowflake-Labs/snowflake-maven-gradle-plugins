@@ -20,4 +20,4 @@ jobs:
         env:
           PROFILE_PASSWORD: ${{ secrets.PROFILE_PASSWORD }}
       - name: Run test
-        run: mvn install && mvn integration-test -P run-its
+        run: mvn install -Dgpg.skip && mvn integration-test -Dgpg.skip -P run-its
