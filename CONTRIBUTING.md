@@ -24,7 +24,7 @@ cd snowflake-maven-gradle-plugins/
 mvn test
 
 # Install a snapshot of the plugin into your local .m2 repository
-mvn install
+mvn install -Dgpg.skip
 ```
 
 The snapshot of the plugin in the local .m2 repository should now be accessible from other Maven projects.
@@ -58,7 +58,7 @@ To run integration tests:
 # Set execution privileges for shell scripts
 chmod -R +x src/it 
 # Then, integration tests can be run the `run-its` maven profile:
-mvn verify -P run-its
+mvn verify -Dgpg.skip -P run-its
 ```
 
 ## Gradle
