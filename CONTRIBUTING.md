@@ -38,7 +38,7 @@ Unit tests can be run with:
 mvn test
 ```
 
-A Snowflake Account is needed for integration tests. Create a `profile.properties` file in `/src/it/`:
+A Snowflake Account is needed for integration tests. Create a `profile.properties` file in `snowflake-maven-plugin/src/it`:
 
 > WARNING: Ensure that the credential you provide below are for a development account/database. Don't use production credentials.
   
