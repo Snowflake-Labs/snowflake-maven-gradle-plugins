@@ -21,49 +21,64 @@ public class Snowflake {
   // need to be uploaded
   private Set<String> skippedDependencies = new HashSet<>();
 
+  // The name of the stage used for uploaded files
+  private String stageName;
+  // The name of the project artifact file
+  private String artifactFileName;
+  // A map of each dependency to its path on the stage
+  private Map<String, String> depsToStagePaths;
+
   /**
    * Create a snowflake object representing a session with a logger
    *
-   * @param l
-   * @param c
+   * @param logger
+   * @param conn
+   * @param stageName
+   * @param artifactFileName
+   * @param depsToStagePaths
    */
-  public Snowflake(SnowflakeLogger l, SnowflakeConnectionV1 c) throws SQLException {
-    sfLogger = l;
-    conn = c;
+  public Snowflake(
+      SnowflakeLogger logger,
+      SnowflakeConnectionV1 conn,
+      String stageName,
+      String artifactFileName,
+      Map<String, String> depsToStagePaths) {
+    this.sfLogger = logger;
+    this.conn = conn;
+    this.stageName = normalizeStageLocation(stageName);
+    this.artifactFileName = artifactFileName;
+    this.depsToStagePaths = depsToStagePaths;
   }
 
-  public void createStage(String stageName) throws SQLException {
-    sfLogger.info(String.format("Creating stage @%s if not exists", stageName));
+  public void createStage() throws SQLException {
+    sfLogger.info(String.format("Creating stage %s if not exists", stageName));
     conn.createStatement().execute(String.format("create stage if not exists %s", stageName));
     sfLogger.info("Stage located or created!");
   }
 
-  public void uploadArtifact(String localFileName, String stageName) throws SQLException {
+  public void uploadArtifact(String localFileName) throws SQLException {
     sfLogger.info("Uploading artifact JAR: " + localFileName);
-    uploadFiles(localFileName, stageName, artifactDirOnStage, true);
+    uploadFiles(localFileName, artifactDirOnStage, true);
     sfLogger.info("Artifact JAR uploaded!");
   }
 
-  public void uploadDependencies(
-      String localFilePath, String stageName, Map<String, String> depsToStagePath)
-      throws SQLException {
+  public void uploadDependencies(String localFilePath) throws SQLException {
     sfLogger.info("Uploading dependency JARs from: " + localFilePath);
-    for (Map.Entry<String, String> entry : depsToStagePath.entrySet()) {
+    for (Map.Entry<String, String> entry : depsToStagePaths.entrySet()) {
       String dependencyFile = entry.getKey();
       String stagePath = entry.getValue();
       sfLogger.info("Uploading " + dependencyFile);
       String dependencyFilePath = String.format("%s/%s", localFilePath, dependencyFile);
-      uploadDependencyIfExists(dependencyFilePath, stageName, stagePath, dependencyFile);
+      uploadDependencyIfExists(dependencyFilePath, stagePath, dependencyFile);
     }
     sfLogger.info("Dependency JARs uploaded!");
   }
 
   // Split up uploadDependencies function to avoid mocking files in tests
   public void uploadDependencyIfExists(
-      String dependencyFilePath, String stageName, String stagePath, String dependencyFile)
-      throws SQLException {
+      String dependencyFilePath, String stagePath, String dependencyFile) throws SQLException {
     if (new File(dependencyFilePath).isFile()) {
-      uploadFiles(dependencyFilePath, stageName, stagePath, false);
+      uploadFiles(dependencyFilePath, stagePath, false);
     } else {
       // If a jar file for the dependency is not found, skip it
       // These are usually Gradle platform dependencies or Maven Bill-Of-Materials (BOM) which do
@@ -76,8 +91,7 @@ public class Snowflake {
     }
   }
 
-  public void uploadFiles(
-      String localFileName, String stageName, String pathOnStage, boolean overwrite)
+  public void uploadFiles(String localFileName, String pathOnStage, boolean overwrite)
       throws SQLException {
     Map<String, String> options = new HashMap<>();
     options.put("AUTO_COMPRESS", "FALSE");
@@ -87,19 +101,9 @@ public class Snowflake {
         String.format(
             "PUT %s %s %s",
             normalizeLocalFile(localFileName),
-            String.format("%s/%s", normalizeStageLocation(stageName), pathOnStage),
+            String.format("@%s/%s", stageName, pathOnStage),
             getOptionsStatement(options));
     conn.createStatement().execute(sql);
-  }
-
-  // File upload written to replicate ThunderSnow PUT FileOperation
-  private String normalizeStageLocation(String name) {
-    String trimName = name.trim();
-    if (trimName.startsWith("@")) {
-      return trimName;
-    } else {
-      return "@" + trimName;
-    }
   }
 
   private String normalizeLocalFile(String file) {
@@ -127,12 +131,11 @@ public class Snowflake {
     return statement.toString().trim();
   }
 
-  public String getImportString(
-      String artifactFileName, String stageName, Map<String, String> depsToStagePath) {
+  public String getImportString() {
     String artifact = artifactDirOnStage + "/" + artifactFileName;
     List<String> imports = new ArrayList<>();
     imports.add(artifact);
-    for (Map.Entry<String, String> entry : depsToStagePath.entrySet()) {
+    for (Map.Entry<String, String> entry : depsToStagePaths.entrySet()) {
       String dependencyFile = entry.getKey();
       String stagePath = entry.getValue();
       if (!skippedDependencies.contains(dependencyFile)) {
@@ -153,9 +156,7 @@ public class Snowflake {
     return "";
   }
 
-  public void createFunctionOrProc(
-      UserDefined udx, String stageName, String fileName, Map<String, String> depsToStagePath)
-      throws SQLException {
+  public void createFunctionOrProc(UserDefined udx) throws SQLException {
     String s =
         String.format(
                 "CREATE OR REPLACE %s %s (%s)\n", udx.getType(), udx.getName(), udx.getInputs())
@@ -163,15 +164,18 @@ public class Snowflake {
             + "LANGUAGE java\n"
             + getPackageString(udx.getType())
             + String.format("HANDLER = '%s'\n", udx.getHandler())
-            + String.format(
-                "IMPORTS = (%s);",
-                getImportString(
-                    fileName, stageName, depsToStagePath)); // TODO: Store these variables as
-    // properties of the Snowflake
-    // class so that we avoid passing variables through several
-    // functions
+            + String.format("IMPORTS = (%s);", getImportString());
     sfLogger.info("Running create function statement: ");
     sfLogger.info(s);
     conn.createStatement().execute(s);
+  }
+
+  private String normalizeStageLocation(String name) {
+    String trimName = name.trim();
+    if (trimName.startsWith("@")) {
+      return trimName.substring(1);
+    } else {
+      return trimName;
+    }
   }
 }
