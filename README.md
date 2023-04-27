@@ -222,7 +222,7 @@ mvn clean package snowflake:deploy \
 | JDK      | 11                   |
 
 ## Gradle Configuration
-
+<!--- TODO: Uncomment this section once the Gradle plugin is released on Maven Central
 Add the plugin to your project's `build.gradle`
 
 ```groovy
@@ -240,6 +240,11 @@ pluginManagement {
     }
 }
 ```
+-->
+
+> The Snowflake Gradle Plugin can be built and installed locally [with instructions in the contribution guide](CONTRIBUTING.md#gradle).
+
+This plugin has not been published yet.
 
 ### Authentication
 
