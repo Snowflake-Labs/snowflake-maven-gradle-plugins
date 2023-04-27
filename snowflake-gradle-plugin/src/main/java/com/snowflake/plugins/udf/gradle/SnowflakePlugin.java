@@ -30,11 +30,11 @@ public class SnowflakePlugin implements Plugin<Project> {
     // Register tasks for the plugin
     TaskContainer tasks = project.getTasks();
     tasks.register("listDependenciesTask", ListDependenciesTask.class);
-    tasks.create("copyDependenciesTask", CopyDependenciesTask.class);
+    tasks.register("copyDependenciesTask", CopyDependenciesTask.class);
     TaskProvider<SnowflakeDeployTask> deployTask =  tasks
-        .register(
-            "snowflakeDeploy",
-            SnowflakeDeployTask.class);
+      .register(
+        "snowflakeDeploy",
+        SnowflakeDeployTask.class);
 
     project.afterEvaluate(projectAfterEvaluation -> {
       final TaskProvider<Task> jarTask = projectAfterEvaluation.getTasks().named("jar");
