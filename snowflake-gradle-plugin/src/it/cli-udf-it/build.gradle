@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+    id 'com.snowflake.snowflake-gradle-plugin'
+}
+
+group = 'com.snowflake'
+version = '0.1.0-SNAPSHOT'
+
+snowflake {
+    auth {
+        propertiesFile = "$projectDir/../profile.properties"
+    }
+    stage = System.getenv('SNOWFLAKEPLUGINSTAGE')
+}

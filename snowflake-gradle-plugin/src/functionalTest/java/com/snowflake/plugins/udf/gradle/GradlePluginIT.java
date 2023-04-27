@@ -1,25 +1,27 @@
-package com.snowflake.plugins.udf.maven;
+package com.snowflake.plugins.udf.gradle;
 
-import java.io.*;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Properties;
-import java.util.Random;
-import java.util.Scanner;
 import net.snowflake.client.jdbc.SnowflakeConnectionV1;
+import org.gradle.testkit.runner.GradleRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MavenPluginIT {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
 
-  private String runScriptPath = "./src/it/runtest.sh";
-  private String propertiesFilePath = "./src/it/profile.properties";
+public class GradlePluginIT {
+  private String itProjectsDir = "./src/it/";
+  private String propertiesFilePath = itProjectsDir + "profile.properties";
   private SnowflakeConnectionV1 conn;
   private UdxChecker checker;
+
   private String stageName =
-          "SNOWFLAKE_MAVEN_PLUGIN_INTEGRATION_TEST_"
-                  + Math.abs(new Random(System.nanoTime()).nextInt());
+      "SNOWFLAKE_GRADLE_PLUGIN_INTEGRATION_TEST_"
+          + Math.abs(new Random(System.nanoTime()).nextInt());
 
   @Before
   public void setup() throws SQLException, IOException {
@@ -38,6 +40,7 @@ public class MavenPluginIT {
   public void testSimpleUdfIt() throws Exception {
     String functionName = "simpleUdfItMyStringConcat";
     String testName = "simple-udf-it";
+
     try {
       runTest(testName);
       checker.checkStringFunction(functionName, "'hi', ' there'", "hi there");
@@ -62,10 +65,10 @@ public class MavenPluginIT {
     } finally {
       Statement statement = conn.createStatement();
       statement.execute(
-              String.format("DROP PROCEDURE IF EXISTS %s (string, string)", procedureName));
+          String.format("DROP PROCEDURE IF EXISTS %s (string, string)", procedureName));
       statement.execute(String.format("DROP FUNCTION IF EXISTS %s (int)", functionName));
       statement.execute(
-              String.format("DROP FUNCTION IF EXISTS %s (string, string)", functionName2));
+          String.format("DROP FUNCTION IF EXISTS %s (string, string)", functionName2));
     }
   }
 
@@ -75,14 +78,13 @@ public class MavenPluginIT {
     String testName = "cli-udf-it";
     try {
       runTest(
-              testName,
-              true,
-              String.format(
-                      "-Ddeploy.type=function -Ddeploy.name=%s "
-                              + "-Ddeploy.handler=SimpleUdf.myStringConcat "
-                              + "-Ddeploy.returns=string",
-                      functionName),
-              "-Ddeploy.args=a string, b string");
+          testName,
+          List.of(
+              "--deploy-type=function",
+              String.format("--deploy-name=%s", functionName),
+              "--deploy-handler=SimpleUdf.myStringConcat",
+              "--deploy-args=a string, b string",
+              "--deploy-returns=string"));
       checker.checkStringFunction(functionName, "'hi', ' there'", "hi there");
     } finally {
       Statement statement = conn.createStatement();
@@ -90,39 +92,21 @@ public class MavenPluginIT {
     }
   }
 
-  private static void inheritIO(final InputStream src, final PrintStream dest) {
-    new Thread(
-            new Runnable() {
-              public void run() {
-                Scanner sc = new Scanner(src);
-                while (sc.hasNextLine()) {
-                  dest.println(sc.nextLine());
-                }
-              }
-            })
-            .start();
+  public void runTest(String testName) {
+    runTest(testName, List.of());
   }
 
-  // We pass "-Ddeploy.args="a string, b string"" as an unsplit arg to the runtest.sh script
-  // This is so that the spaces in "-Ddeploy.args=a string, b string" doesn't cause this section to
-  // be parsed as another lifecycle goal
-  private void runTest(String testName, boolean withArgs, String args, String unsplitArg) {
-    // Start the process.
-    ProcessBuilder processBuilder =
-            new ProcessBuilder(
-                    runScriptPath, testName, String.valueOf(withArgs), stageName, args, unsplitArg);
-    try {
-      Process proc = processBuilder.start();
-      inheritIO(proc.getInputStream(), System.out);
-      inheritIO(proc.getErrorStream(), System.err);
-      // wait for termination.
-      proc.waitFor();
-    } catch (IOException | InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void runTest(String testName) {
-    runTest(testName, false, "", "");
+  public void runTest(String testName, List<String> testArgs) {
+    Map<String, String> envVars = new HashMap<>();
+    envVars.put("SNOWFLAKEPLUGINSTAGE", stageName);
+    List<String> args = new ArrayList<>(List.of("clean", "build", "snowflakeDeploy", "--info"));
+    args.addAll(testArgs);
+    GradleRunner.create()
+        .withProjectDir(new File(itProjectsDir + testName))
+        .withArguments(args)
+        .withPluginClasspath()
+        .withEnvironment(envVars)
+        .forwardOutput()
+        .build();
   }
 }
