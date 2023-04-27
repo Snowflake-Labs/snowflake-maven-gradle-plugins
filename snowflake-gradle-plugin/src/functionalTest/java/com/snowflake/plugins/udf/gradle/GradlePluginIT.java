@@ -27,6 +27,8 @@ public class GradlePluginIT {
   public void setup() throws SQLException, IOException {
     Properties prop = new Properties();
     prop.load(new FileInputStream(propertiesFilePath));
+    prop.put("client_memory_limit", "10240");
+    prop.put("CLIENT_SESSION_KEEP_ALIVE", true);
     conn = new SnowflakeConnectionV1("jdbc:snowflake://" + prop.get("URL").toString(), prop);
     checker = new UdxChecker(conn);
   }
