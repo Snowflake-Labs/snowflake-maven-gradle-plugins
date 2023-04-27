@@ -32,7 +32,7 @@ Put the following Maven coordinates in the `<plugins>` block of the  POM file.
 <plugin>
     <groupId>com.snowflake</groupId>
     <artifactId>snowflake-maven-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </plugin>
 ```
 
@@ -64,7 +64,7 @@ Then specify this file using the `<propertiesFile>` tag in the auth section:
 <plugin>
     <groupId>com.snowflake</groupId>
     <artifactId>snowflake-maven-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <configuration>
         <auth>
             <propertiesFile>profile.properties</propertiesFile>
@@ -81,7 +81,7 @@ Alternatively, you can specify your account information directly in the plugin u
 <plugin>
     <groupId>com.snowflake</groupId>
     <artifactId>snowflake-maven-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <configuration>
         <auth>
             <url>https://MY_ACCOUNT_NAME.snowflakecomputing.com:443</url>
@@ -116,7 +116,7 @@ Example plugin configuration on POM:
 <plugin>
     <groupId>com.snowflake</groupId>
     <artifactId>snowflake-maven-plugin</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <configuration>
         <auth>
             <propertiesFile>profile.properties</propertiesFile>
@@ -227,7 +227,7 @@ Add the plugin to your project's `build.gradle`
 
 ```groovy
 plugins {
-    id 'com.snowflake.snowflake-gradle-plugin' version '0.1.0-SNAPSHOT'
+    id 'com.snowflake.snowflake-gradle-plugin' version '0.1.0'
 }
 ```
 

@@ -6,7 +6,7 @@ plugins {
 
 // Update release script to copy group and version from parent build script
 group = 'com.snowflake'
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 description = 'Snowflake Gradle Plugin'
 java.sourceCompatibility = JavaVersion.VERSION_11
 

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.snowflake</groupId>
         <artifactId>snowflake-maven-plugin-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
     </parent>
 
     <groupId>com.snowflake</groupId>
@@ -217,7 +217,7 @@
                                     <file>target/${project.artifactId}-${project.version}.jar</file>
                                     <repositoryId>ossrh</repositoryId>
                                     <!-- Temporarily using internal maven repository under the "OSSRH" name for testing -->
-                                    <url>https://nexus.int.snowflakecomputing.com/repository/Snapshots/</url>
+                                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                                     <pomFile>pom.xml</pomFile>
                                     <keyname>${env.GPG_KEY_ID}</keyname>
                                     <passphrase>${env.GPG_KEY_PASSPHRASE}</passphrase>
