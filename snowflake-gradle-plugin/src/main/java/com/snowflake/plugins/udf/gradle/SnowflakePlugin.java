@@ -7,6 +7,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskContainer;
+import org.gradle.api.Task;
+import org.gradle.api.tasks.TaskProvider;
 
 /** Plugin class for Gradle Plugin */
 public class SnowflakePlugin implements Plugin<Project> {
@@ -29,13 +31,24 @@ public class SnowflakePlugin implements Plugin<Project> {
     TaskContainer tasks = project.getTasks();
     tasks.register("listDependenciesTask", ListDependenciesTask.class);
     tasks.create("copyDependenciesTask", CopyDependenciesTask.class);
-    tasks
-        .create(
+    TaskProvider<SnowflakeDeployTask> deployTask =  tasks
+        .register(
             "snowflakeDeploy",
-            SnowflakeDeployTask.class,
-            tasks.getByName("listDependenciesTask").getOutputs().getFiles().iterator().next())
-        .dependsOn("copyDependenciesTask")
-        .dependsOn("listDependenciesTask")
-        .dependsOn("build");
+            SnowflakeDeployTask.class);
+
+    project.afterEvaluate(projectAfterEvaluation -> {
+      final TaskProvider<Task> jarTask = projectAfterEvaluation.getTasks().named("jar");
+
+      deployTask.configure(task -> {
+        task.dependsOn("copyDependenciesTask");
+        task.dependsOn("listDependenciesTask");
+        task.dependsOn(jarTask);
+        task.setArtifactFilePath(jarTask.get().getOutputs().getFiles().getAsPath());
+        task.setArtifactFileName(jarTask.get().getOutputs().getFiles().getSingleFile().getName());
+        task.setDependencyLogFile(
+                tasks.getByName("listDependenciesTask").getOutputs().getFiles().getSingleFile()
+        );
+      });
+    });
   }
 }
