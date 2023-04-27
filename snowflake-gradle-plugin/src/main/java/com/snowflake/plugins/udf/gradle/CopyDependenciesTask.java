@@ -8,12 +8,9 @@ import org.gradle.api.tasks.Copy;
  */
 public class CopyDependenciesTask extends Copy {
   public CopyDependenciesTask() {
-    getProject().getConfigurations().getByName("implementation").setCanBeResolved(true);
-    // Configure the source and destination directories to the project's "implementation"
-    // dependencies
-    // Note: Gradle defines "implementation" dependencies as compile + runtime (non-test)
-    // dependencies
-    from(getProject().getConfigurations().getByName("implementation"));
+    // Configure the source to the project's "runtime"  dependencies
+    // This allows us to stage all the dependencies needed to run the client project functions on snowflake
+    from(getProject().getConfigurations().getByName("runtimeClasspath"));
     into(
         getProject().getBuildDir()
             + SnowflakePlugin.libsString

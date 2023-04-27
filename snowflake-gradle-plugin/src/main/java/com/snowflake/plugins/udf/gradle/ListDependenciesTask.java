@@ -9,9 +9,9 @@ import org.gradle.api.tasks.diagnostics.DependencyReportTask;
  */
 public class ListDependenciesTask extends DependencyReportTask {
   public ListDependenciesTask() {
-    // Note: Gradle defines "implementation" dependencies as compile + runtime (non-test)
-    // dependencies
-    setConfiguration("implementation");
+    // Configure the source to the project's "runtime"  dependencies
+    // This allows us to list all the dependencies needed to run the client project functions on snowflake
+    setConfiguration("runtimeClasspath");
     setOutputFile(new File(getProject().getBuildDir() + "/libs/dependencies/dependency.log"));
   }
 }
