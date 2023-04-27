@@ -150,36 +150,42 @@ public class DeployGoal extends AbstractMojo {
             .collect(Collectors.toList());
     appendCliUdxIfDefined(udxs);
     validateUserConfig();
-    // Get authentication options from properties file, POM, and CLI to create Snowflake connection
-    createSnowflakeConnection();
     // Copy dependencies to the "target/dependency" folder
     getLog()
         .info(
             "Execute copy dependencies. Destination: " + buildDirectory + "/" + dependencyDirName);
     executeDependencyCopyDependencies(executionEnv);
     executeDependencyList(executionEnv);
+
+    SnowflakeBuilder builder = new SnowflakeBuilder(getLog()::info);
+    // Get authentication options from properties file, POM, and CLI to create Snowflake connection
+    configureSnowflakeAuth(builder);
+    configureSnowflakeDeployParams(builder, stage, artifactFileName);
+    // Create snowflake JDBC Connection
     try {
-      snowflake.createStage(stage);
+      snowflake = builder.create();
+    } catch (SQLException e) {
+      throw new MojoExecutionException(
+          "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
+          e);
+    }
+    try {
+      snowflake.createStage();
     } catch (SQLException e) {
       throw new MojoExecutionException("Error creating or accessing stage: ", e);
     }
-    // Upload artifacts to stage
-    Map<String, String> depsToStagePath;
 
+    // Upload artifacts to stage
     try {
-      depsToStagePath = mapDependenciesToStagePaths();
-      snowflake.uploadArtifact(String.format("%s/%s", buildDirectory, artifactFileName), stage);
-      snowflake.uploadDependencies(
-          String.format("%s/%s", buildDirectory, dependencyDirName), stage, depsToStagePath);
+      snowflake.uploadArtifact(String.format("%s/%s", buildDirectory, artifactFileName));
+      snowflake.uploadDependencies(String.format("%s/%s", buildDirectory, dependencyDirName));
     } catch (SQLException e) {
       throw new MojoExecutionException("Error uploading: ", e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
     // Register UDFs and Procedures
     try {
       for (UserDefined udf : udxs) {
-        snowflake.createFunctionOrProc(udf, stage, artifactFileName, depsToStagePath);
+        snowflake.createFunctionOrProc(udf);
       }
     } catch (SQLException e) {
       throw new MojoExecutionException("Error creating function or procedure.", e);
@@ -215,8 +221,7 @@ public class DeployGoal extends AbstractMojo {
     }
   }
 
-  private void createSnowflakeConnection() throws MojoExecutionException {
-    SnowflakeBuilder builder = new SnowflakeBuilder(getLog()::info);
+  private void configureSnowflakeAuth(SnowflakeBuilder builder) throws MojoExecutionException {
     if (auth != null) {
       if (auth.containsKey(authFileParamName)) {
         // User has supplied an authentication file name
@@ -240,13 +245,17 @@ public class DeployGoal extends AbstractMojo {
     authCliParams.put("db", auth_db);
     authCliParams.put("schema", auth_schema);
     builder.config(authCliParams);
-    // Create snowflake JDBC Connection
+  }
+
+  private void configureSnowflakeDeployParams(
+      SnowflakeBuilder builder, String stageName, String artifactFileName)
+      throws MojoExecutionException {
+    builder.stageName(stageName);
+    builder.artifactFileName(artifactFileName);
     try {
-      snowflake = builder.create();
-    } catch (SQLException e) {
-      throw new MojoExecutionException(
-          "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
-          e);
+      builder.depsToStagePaths(mapDependenciesToStagePaths());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

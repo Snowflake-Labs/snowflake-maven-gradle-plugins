@@ -146,18 +146,25 @@ public class SnowflakeDeployTask extends DefaultTask {
     }
     appendCliUdxIfDefined(concreteUdxs);
     validateUserConfig(concreteUdxs);
+    SnowflakeBuilder builder = new SnowflakeBuilder(logger::info);
     // Get authentication options from properties file, gradle.build, and CLI to create
     // Snowflake connection
-    createSnowflakeConnection();
-    snowflake.createStage(stage);
-    Map<String, String> dependenciesToStagePaths = mapDependenciesToStagePaths();
-    snowflake.uploadArtifact(String.format("%s/%s", buildDirectory, artifactFileName), stage);
+    configureSnowflakeAuth(builder);
+    configureSnowflakeDeployParams(builder, stage, artifactFileName);
+    // Create snowflake JDBC Connection
+    try {
+      snowflake = builder.create();
+    } catch (SQLException e) {
+      throw new RuntimeException(
+              "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
+              e);
+    }
+    snowflake.createStage();
+    snowflake.uploadArtifact(String.format("%s/%s", buildDirectory, artifactFileName));
     snowflake.uploadDependencies(
-        String.format(buildDirectory + SnowflakePlugin.dependenciesString),
-        stage,
-        dependenciesToStagePaths);
+        String.format(buildDirectory + SnowflakePlugin.dependenciesString));
     for (UserDefinedConcrete udx : concreteUdxs) {
-      snowflake.createFunctionOrProc(udx, stage, artifactFileName, dependenciesToStagePaths);
+      snowflake.createFunctionOrProc(udx);
     }
     logger.info("Functions created!");
   }
@@ -172,13 +179,12 @@ public class SnowflakeDeployTask extends DefaultTask {
   }
 
   /**
-   * Reads user configurations to create a connected Snowflake object
+   * Reads user auth configurations to configure snowflake connection
    *
    * @throws IOException
    * @throws SQLException
    */
-  private void createSnowflakeConnection() throws IOException, SQLException {
-    SnowflakeBuilder builder = new SnowflakeBuilder(logger::info);
+  private void configureSnowflakeAuth(SnowflakeBuilder builder) throws IOException, SQLException {
     if (auth != null) {
       if (auth.getPropertiesFile() != null) {
         // User has supplied an authentication file name
@@ -200,13 +206,16 @@ public class SnowflakeDeployTask extends DefaultTask {
     builder.config("role", authRole);
     builder.config("db", authDb);
     builder.config("schema", authSchema);
-    // Create snowflake JDBC Connection
+  }
+
+  private void configureSnowflakeDeployParams(
+          SnowflakeBuilder builder, String stageName, String artifactFileName) {
+    builder.stageName(stageName);
+    builder.artifactFileName(artifactFileName);
     try {
-      snowflake = builder.create();
-    } catch (SQLException e) {
-      throw new RuntimeException(
-          "Error creating JDBC connection to snowflake. You likely need to change/add information to your auth config for the plugin: ",
-          e);
+      builder.depsToStagePaths(mapDependenciesToStagePaths());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

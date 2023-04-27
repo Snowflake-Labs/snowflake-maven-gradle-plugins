@@ -12,6 +12,12 @@ import net.snowflake.client.jdbc.SnowflakeConnectionV1;
 public class SnowflakeBuilder {
   public Map<String, String> options = new HashMap<>();
   public String url;
+  // The name of the stage used for uploaded files
+  private String stageName;
+  // The name of the project artifact file
+  private String artifactFileName;
+  // A map of each dependency to its path on the stage
+  private Map<String, String> depsToStagePaths;
   // Logger object passed from Maven/Gradle plugin
   private SnowflakeLogger sfLogger;
 
@@ -47,6 +53,21 @@ public class SnowflakeBuilder {
     return this;
   }
 
+  public SnowflakeBuilder stageName(String stageName) {
+    this.stageName = stageName;
+    return this;
+  }
+
+  public SnowflakeBuilder artifactFileName(String artifactFileName) {
+    this.artifactFileName = artifactFileName;
+    return this;
+  }
+
+  public SnowflakeBuilder depsToStagePaths(Map<String, String> depsToStagePaths) {
+    this.depsToStagePaths = depsToStagePaths;
+    return this;
+  }
+
   // Creates the Snowflake connection object. Will throw exceptions for invalid connection data such
   // as missing/incorrect url, user, password.
   public Snowflake create() throws SQLException {
@@ -58,7 +79,7 @@ public class SnowflakeBuilder {
     sfLogger.info("Creating connection to snowflake at url: " + url);
     SnowflakeConnectionV1 conn = new SnowflakeConnectionV1(url, prop);
     sfLogger.info("Snowflake Session established!");
-    return new Snowflake(sfLogger, conn);
+    return new Snowflake(sfLogger, conn, stageName, artifactFileName, depsToStagePaths);
   }
 
   // Format the user provided url to match JDBC Connection url
