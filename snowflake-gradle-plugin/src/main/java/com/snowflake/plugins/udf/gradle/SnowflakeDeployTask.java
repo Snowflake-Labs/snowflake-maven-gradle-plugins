@@ -23,14 +23,20 @@ import org.slf4j.Logger;
 
 /** Plugin publish task entry point. Executes all actions associated with snowflakePublish */
 public class SnowflakeDeployTask extends DefaultTask {
-  @Inject
-  public SnowflakeDeployTask(File dependencyLogFile) {
-    this.dependencyLogFile = dependencyLogFile;
-  }
 
   private final String PLUGIN = "snowflake";
   private SnowflakeExtension extension =
       (SnowflakeExtension) getProject().getExtensions().getByName(PLUGIN);
+  // Temporary file which lists each dependency in the user project and their organization or
+  // artifact ID. Populated by ListDependenciesTask
+  @Setter
+  private File dependencyLogFile;
+  // Full file path of the client project artifact JAR
+  @Setter
+  private String artifactFilePath;
+  // File name of the client project artifact JAR
+  @Setter
+  private String artifactFileName;
   private Logger logger = Logging.getLogger(SnowflakeDeployTask.class);
   // Snowflake connection authentication information for the task
   private AuthConfig auth;
@@ -118,9 +124,6 @@ public class SnowflakeDeployTask extends DefaultTask {
   @Option(option = "deploy-returns", description = "Specify the return type for a new deploy")
   private String deployReturns;
 
-  // Temporary file which lists each dependency in the user project and their organization or
-  // artifact ID. Populated by ListDependenciesTask
-  private File dependencyLogFile;
   // Snowflake core instance configured for the user
   private Snowflake snowflake;
   // Set of Function/Procedure containers inputted by the user from their build file
@@ -132,8 +135,6 @@ public class SnowflakeDeployTask extends DefaultTask {
     stage = extension.getStage();
     // TODO: Follow the user's configuration for project.libsDir
     String buildDirectory = getProject().getBuildDir() + SnowflakePlugin.libsString;
-    String artifactFileName =
-        String.format("%s-%s.jar", getProject().getName(), getProject().getVersion());
     udxContainers.addAll(
         (Set<FunctionContainer>) getProject().getExtensions().getByName("functions"));
     udxContainers.addAll(
@@ -160,7 +161,7 @@ public class SnowflakeDeployTask extends DefaultTask {
               e);
     }
     snowflake.createStage();
-    snowflake.uploadArtifact(String.format("%s/%s", buildDirectory, artifactFileName));
+    snowflake.uploadArtifact(artifactFilePath);
     snowflake.uploadDependencies(
         String.format(buildDirectory + SnowflakePlugin.dependenciesString));
     for (UserDefinedConcrete udx : concreteUdxs) {
