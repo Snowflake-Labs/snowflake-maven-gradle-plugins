@@ -345,7 +345,7 @@ After configuration, run the following to publish your functions and procedures:
 ```shell
 gradle snowflakeDeploy
 ```
-The `snowflakeDeploy` task will trigger the `build` task if `build` is not up to date.
+The `snowflakeDeploy` task will trigger the `jar` task if `jar` is not up to date.
 
 ### Usage in CI pipelines
 
@@ -357,7 +357,7 @@ Auth parameters can optionally be provided as arguments when running the plugin 
 Values from CLI arguments will override any values set in the properties file or gradle build file:
 
 ```bash
-gradle clean build snowflakeDeploy \
+gradle snowflakeDeploy \
   --auth-url="myaccount.snowflakecomputing.com" \
   --auth-user="username" \
   --auth-password="password" \
@@ -371,7 +371,7 @@ The command line function/procedure will be created along with any defined in `b
 The arguments have the following syntax:
 
 ```bash
-gradle clean build snowflakeDeploy \
+gradle snowflakeDeploy \
   --deploy-type="{procedure | function}" \
   --deploy-name="<name>" \
   --deploy-args="[ <arg_name> <arg_data_type> ] [ , ... ]" \
@@ -382,7 +382,7 @@ gradle clean build snowflakeDeploy \
 As an example:
 
 ```bash
-gradle clean build snowflakeDeploy \
+gradle snowflakeDeploy \
   --deploy-type="procedure" \
   --deploy-name="mvnStringConcat" \
   --deploy-args="a string, b string" \
