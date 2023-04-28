@@ -43,7 +43,6 @@ A Snowflake Account is needed for integration tests. Create a `profile.propertie
 > WARNING: Ensure that the credential you provide below are for a development account/database. Don't use production credentials.
   
 ```properties
-# ACCOUNT property will not work for integration tests
 URL = ACCOUNT_NAME.snowflakecomputing.com:443
 USER = username
 PASSWORD = password
@@ -90,6 +89,35 @@ pluginManagement {
 ```
 
 Now you can test your changes in a test project.
+
+
+### Testing
+
+Unit tests can be run with:
+
+```shell
+gradle test
+```
+
+A Snowflake Account is needed for functional tests. Create a `profile.properties` file in `snowflake-gradle-plugin/src/it`.
+This directory holds the client projects on which the plugin will be applied:
+
+> WARNING: Ensure that the credential you provide below are for a development account/database. Don't use production credentials.
+
+```properties
+URL = ACCOUNT_NAME.snowflakecomputing.com:443
+USER = username
+PASSWORD = password
+# optional properties
+DB = database
+WAREHOUSE = warehouse
+SCHEMA = schema
+```
+
+To run functional tests:
+```shell
+gradle functionalTest
+```
 
 ### IntelliJ
 

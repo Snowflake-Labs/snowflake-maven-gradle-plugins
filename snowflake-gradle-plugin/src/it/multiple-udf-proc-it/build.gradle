@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'com.snowflake.snowflake-gradle-plugin'
+}
+
+group = 'com.snowflake'
+version = '0.1.0-SNAPSHOT'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+snowflake {
+    auth {
+        propertiesFile = "$projectDir/../profile.properties"
+    }
+    stage = System.getenv('SNOWFLAKEPLUGINSTAGE')
+    functions {
+        multipleUdfProcItMyNewJsonSki {
+            handler = "MultipleUdfProc.myNewJsonSki"
+            args = ["a integer"]
+            returns = "string"
+        }
+        multipleUdfProcItMyStringConcatWithLog {
+            handler = "MultipleUdfProc.myStringConcatWithLog"
+            args = ["a string", "b string"]
+            returns = "string"
+        }
+    }
+    procedures {
+        multipleUdfProcItMyStringConcat {
+            handler = "MultipleUdfProc.myStringConcat"
+            args = ["a string", "b string"]
+            returns = "string"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/commons-logging/commons-logging
+    implementation group: 'commons-logging', name: 'commons-logging', version: '1.1.1'
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.9.1'
+    // https://mvnrepository.com/artifact/com.snowflake/snowpark
+    implementation group: 'com.snowflake', name: 'snowpark', version: '1.7.2'
+}

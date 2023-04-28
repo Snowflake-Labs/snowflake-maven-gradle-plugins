@@ -21,6 +21,28 @@ dependencies {
     implementation project(':snowflake-plugins-core')
 }
 
+testing {
+    suites {
+        functionalTest(JvmTestSuite) {
+            useJUnit('4.12')
+
+            dependencies {
+                implementation 'junit:junit:4.12'
+                // functionalTest test suite depends on the production code in tests
+                implementation project(":snowflake-gradle-plugin")
+            }
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                        failFast true
+                    }
+                }
+            }
+        }
+    }
+}
+
 gradlePlugin {
     plugins {
         snowflakeGradlePlugin {
@@ -28,6 +50,7 @@ gradlePlugin {
             implementationClass = 'com.snowflake.plugins.udf.gradle.SnowflakePlugin'
         }
     }
+    testSourceSets.add(sourceSets.functionalTest)
 }
 
 publishing {

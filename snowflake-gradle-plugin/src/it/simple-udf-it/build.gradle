@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'com.snowflake.snowflake-gradle-plugin'
+}
+
+group = 'com.snowflake'
+version = '0.1.0-SNAPSHOT'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+snowflake {
+    auth {
+        propertiesFile = "$projectDir/../profile.properties"
+    }
+    stage = System.getenv('SNOWFLAKEPLUGINSTAGE')
+    functions {
+        simpleUdfItMyStringConcat {
+            handler = "SimpleUdf.myStringConcat"
+            args = ["a string", "b string"]
+            returns = "string"
+        }
+    }
+}
