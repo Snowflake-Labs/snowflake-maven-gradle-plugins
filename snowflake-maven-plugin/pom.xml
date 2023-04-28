@@ -12,7 +12,27 @@
     <groupId>com.snowflake</groupId>
     <artifactId>snowflake-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-
+    <name>Snowflake Maven Plugin</name>
+    <url>http://www.snowflake.com</url>
+    <description>Snowflake's Maven Plugin for UDF/Stored Procedure Development</description>
+    <licenses>
+        <license>
+            <name>Snowflake License</name>
+            <url>https://www.snowflake.com/legal/</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Snowflake Support Team</name>
+            <email>snowflake-java@snowflake.net</email>
+            <organization>Snowflake Computing</organization>
+            <organizationUrl>https://www.snowflake.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git://https://github.com/Snowflake-Labs/snowflake-maven-gradle-plugins</connection>
+        <url>https://github.com/Snowflake-Labs/snowflake-maven-gradle-plugins/tree/main</url>
+    </scm>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>

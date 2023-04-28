@@ -11,15 +11,10 @@
   <version>0.1.0</version>
   <packaging>pom</packaging>
 
-  <name>Snowflake Maven Plugin</name>
-
   <modules>
     <module>snowflake-maven-plugin</module>
     <module>snowflake-plugins-core</module>
   </modules>
-
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.snowflake.com</url>
 
   <prerequisites>
     <maven>${maven.version}</maven>
