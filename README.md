@@ -4,8 +4,8 @@ These are open source and community supported tools. Support is provided on a be
 
 [//]: # (Maven Central links: )
 
-### [Jump to Maven instructions](#maven-configuration)
-### [Jump to Gradle instructions](#gradle-configuration)
+### [Jump to Maven instructions](#maven-installation)
+### [Jump to Gradle instructions](#gradle-installation)
 
 ## Overview
 
@@ -24,7 +24,7 @@ The plugins can create a stage on Snowflake, copy your build artifact and depend
 | Maven    | 3                    |
 
 
-## Maven Configuration
+## Maven Installation
 
 Put the following Maven coordinates in the `<plugins>` block of the  POM file.
 
@@ -221,7 +221,29 @@ mvn clean package snowflake:deploy \
 |----------|----------------------|
 | JDK      | 11                   |
 
-## Gradle Configuration
+
+## Gradle Installation
+
+> The Gradle plugin has not yet been published to Maven Central or the Gradle Plugin Portal. You can install it locally using the instructions below. Alternbatively, you can use this [Gradle plugin](https://github.com/stewartbryson/gradle-snowflake) developed by Snowflake Data Superhero, Stewart Bryson.
+
+Clone this repository and publish it to your local .m2 repository:
+
+```bash
+git clone https://github.com/your-username/snowflake-maven-gradle-plugins.git
+cd snowflake-maven-gradle-plugins/
+gradle publishToMavenLocal
+```
+
+Specify the following at the top of settings.gradle:
+
+```groovy
+pluginManagement {
+    repositories {
+        mavenLocal() // local Maven .m2 repository
+    }
+}
+```
+
 <!--- TODO: Uncomment this section once the Gradle plugin is released on Maven Central
 Add the plugin to your project's `build.gradle`
 
@@ -241,10 +263,6 @@ pluginManagement {
 }
 ```
 -->
-
-> The Snowflake Gradle Plugin can be built and installed locally [with instructions in the contribution guide](CONTRIBUTING.md#gradle).
-
-This plugin has not been published yet.
 
 ### Authentication
 
